@@ -107,6 +107,13 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 - `/media/downloads` — MeTube 下载的视频（自动链接自 `/downloads`）
 - `/media/alist` — Alist 挂载的网盘文件
 
+注意：
+纯手动输入（不要在下面的列表中找目录，找不到的）
+直接点击输入框。
+准确输入 /downloads 或 /media/downloads（两个路径现在都是通的）。
+重要：输入完毕后，仔细检查光标位置，确保结尾绝对没有哪怕一个空格！
+点击输入框右侧的放大镜（搜索）图标，或者直接点击下方的绿色“确定”按钮。
+
 ### MeTube
 
 访问 `/metube/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
