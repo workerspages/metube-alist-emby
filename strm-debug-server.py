@@ -148,8 +148,7 @@ def get_sync_log():
 
 def check_emby_plugins():
     """检查 Emby 插件目录内容"""
-    programdata = os.environ.get("EMBY_PROGRAMDATA", "/config/emby")
-    plugin_dir = os.path.join(programdata, "plugins")
+    plugin_dir = "/opt/emby-server/system/plugins"
     result = {"plugin_dir": plugin_dir, "files": [], "dirs": []}
     if not os.path.exists(plugin_dir):
         return {"status": "error", "plugin_dir": plugin_dir, "message": f"目录不存在: {plugin_dir}"}
