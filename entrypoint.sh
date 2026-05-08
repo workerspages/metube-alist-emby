@@ -17,9 +17,17 @@ mkdir -p /downloads /media/alist \
 # Configure Alist
 # ------------------------------------------
 ALIST_CONFIG="${ALIST_DATA}/config.json"
+
+# First run: generate default config
 if [ ! -f "$ALIST_CONFIG" ]; then
-    echo "Generating Alist default config..."
+    echo "First run: initializing Alist..."
     cd "$ALIST_DATA" && /usr/local/bin/alist admin random --data "$ALIST_DATA" 2>/dev/null || true
+fi
+
+# Set admin password via environment variable (for PaaS without terminal)
+if [ -n "${ALIST_ADMIN_PASS}" ]; then
+    echo "Setting Alist admin password from environment variable..."
+    /usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" 2>/dev/null || true
 fi
 
 # Set Alist site_url for subpath routing

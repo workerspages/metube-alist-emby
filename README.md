@@ -79,26 +79,27 @@ docker run -d \
 
 ### 1. 配置 Alist
 
-1. 查看初始管理员密码：
-   ```bash
-   docker logs media-center 2>&1 | grep -i password
-   ```
-2. 访问 `/alist/` 并登录
-3. 在**存储**页面添加网盘驱动
-
-### 2. rclone 挂载（Alist → Emby）
-
-Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`。启动时设置认证信息：
+通过环境变量 `ALIST_ADMIN_PASS` 设置管理员密码（适配 PaaS 无终端环境）：
 
 ```bash
 docker run -d --name media-center --privileged \
   -p 8080:8080 \
+  -e ALIST_ADMIN_PASS=your_password \
   -e ALIST_USER=admin \
   -e ALIST_PASS=your_password \
   -v ./downloads:/downloads \
   -v ./config:/config \
   ghcr.io/workerspages/metube-alist-emby:latest
 ```
+
+> `ALIST_ADMIN_PASS` — Alist 管理员登录密码
+> `ALIST_USER` / `ALIST_PASS` — rclone WebDAV 挂载认证（通常与管理员相同）
+
+访问 `/alist/` 登录，在**存储**页面添加网盘驱动。
+
+### 2. rclone 挂载（Alist → Emby）
+
+Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接读取。
 
 ### 3. 配置 Emby
 
@@ -118,6 +119,7 @@ docker run -d --name media-center --privileged \
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
+| `ALIST_ADMIN_PASS` | _(空)_ | Alist 管理员密码（每次启动时设置） |
 | `ALIST_USER` | `admin` | rclone WebDAV 认证用户名 |
 | `ALIST_PASS` | _(空)_ | rclone WebDAV 认证密码 |
 | `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
