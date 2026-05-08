@@ -11,7 +11,7 @@ import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
 
-ALIST_URL = "http://localhost:5244"
+ALIST_URL = "http://localhost:5244/alist"
 ALIST_USER = os.environ.get("ALIST_USER", "admin")
 ALIST_PASS = os.environ.get("ALIST_PASS", "")
 MOUNT_POINT = "/media/alist"

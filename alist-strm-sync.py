@@ -9,7 +9,8 @@ import sys
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
-ALIST_URL = "http://localhost:5244"
+ALIST_BASE = "/alist"
+ALIST_URL = f"http://localhost:5244{ALIST_BASE}"
 ALIST_USER = os.environ.get("ALIST_USER", "admin")
 ALIST_PASS = os.environ.get("ALIST_PASS", "")
 MOUNT_POINT = "/media/alist"
@@ -78,7 +79,7 @@ def sync():
                     auth_part = f"{urllib.parse.quote(ALIST_USER)}:{urllib.parse.quote(ALIST_PASS)}@" if ALIST_PASS else ""
                     # quote 处理路径中的特殊字符或中文
                     quoted_path = urllib.parse.quote(item_path)
-                    strm_url = f"http://{auth_part}127.0.0.1:5244/dav{quoted_path}"
+                    strm_url = f"http://{auth_part}127.0.0.1:5244{ALIST_BASE}/dav{quoted_path}"
                     
                     strm_filename = os.path.splitext(name)[0] + ".strm"
                     strm_filepath = os.path.join(local_dir, strm_filename)
