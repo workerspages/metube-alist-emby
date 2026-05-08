@@ -104,7 +104,7 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 ### 3. 配置 Emby
 
 访问 `/web/` 完成设置向导，添加媒体库选择：
-- `/downloads` — MeTube 下载的视频
+- `/media/downloads` — MeTube 下载的视频（自动链接自 `/downloads`）
 - `/media/alist` — Alist 挂载的网盘文件
 
 ### MeTube
