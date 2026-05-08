@@ -13,6 +13,15 @@ mkdir -p /downloads /media/alist \
     "${ALIST_DATA}" \
     "${EMBY_PROGRAMDATA:-/config/emby}"
 
+# Ensure Emby user can access media directories
+# Emby deb package creates an 'emby' user that needs read access
+chmod 755 /downloads /media/alist
+if id emby &>/dev/null; then
+    usermod -aG root emby 2>/dev/null || true
+    chown -R root:root /downloads
+    chmod -R o+rX /downloads
+fi
+
 # ------------------------------------------
 # Configure Alist
 # ------------------------------------------
