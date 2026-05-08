@@ -22,20 +22,13 @@ ln -sfn /downloads /media/downloads
 
 # ------------------------------------------
 # Install Emby plugins from /opt/emby-plugins
-# Emby loads .dll files directly from: plugins/
+# Emby system plugins directory: /opt/emby-server/system/plugins/
 # ------------------------------------------
-EMBY_PLUGIN_DIR="${EMBY_PROGRAMDATA:-/config/emby}/plugins"
-mkdir -p "$EMBY_PLUGIN_DIR"
+EMBY_PLUGIN_DIR="/opt/emby-server/system/plugins"
 if [ -d /opt/emby-plugins ]; then
     for dll in /opt/emby-plugins/*.dll; do
         [ -f "$dll" ] || continue
         PLUGIN_NAME=$(basename "$dll")
-        PLUGIN_BASE=$(basename "$dll" .dll)
-        # 清理旧版错误安装的子目录格式
-        if [ -d "$EMBY_PLUGIN_DIR/${PLUGIN_BASE}_1.0.0.0" ]; then
-            rm -rf "$EMBY_PLUGIN_DIR/${PLUGIN_BASE}_1.0.0.0"
-            echo "Cleaned up old plugin dir: ${PLUGIN_BASE}_1.0.0.0"
-        fi
         # 每次启动都更新插件（确保版本最新）
         cp "$dll" "$EMBY_PLUGIN_DIR/"
         echo "Installed Emby plugin: $PLUGIN_NAME -> $EMBY_PLUGIN_DIR/"
