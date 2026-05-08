@@ -126,6 +126,26 @@ RUN chmod +x /entrypoint.sh /rclone-mount.sh
 RUN mkdir -p /downloads /config/alist /config/emby /media/alist /.cache \
     && chmod 777 /.cache
 
+# ------------------------------------------
+# Default environment variables
+# Users can override these with docker run -e
+# ------------------------------------------
+
+# MeTube defaults
+ENV DOWNLOAD_DIR=/downloads
+ENV STATE_DIR=/downloads/.metube
+ENV TEMP_DIR=/downloads
+ENV YTDL_OPTIONS="{}"
+ENV OUTPUT_TEMPLATE="%(title)s.%(ext)s"
+ENV DARK_MODE=true
+
+# Emby defaults
+ENV EMBY_PROGRAMDATA=/config/emby
+
+# Alist defaults
+ENV ALIST_DATA=/config/alist
+
+# Container port
 ENV PORT=8080
 
 EXPOSE 8080

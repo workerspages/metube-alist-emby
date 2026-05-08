@@ -5,16 +5,21 @@ echo "=========================================="
 echo "  MeTube + Alist + Emby All-in-One"
 echo "=========================================="
 
+# Use env vars with defaults
+ALIST_DATA="${ALIST_DATA:-/config/alist}"
+
 # Create necessary directories
-mkdir -p /downloads /config/alist /config/emby
+mkdir -p /downloads /media/alist \
+    "${ALIST_DATA}" \
+    "${EMBY_PROGRAMDATA:-/config/emby}"
 
 # ------------------------------------------
 # Configure Alist
 # ------------------------------------------
-ALIST_CONFIG="/config/alist/config.json"
+ALIST_CONFIG="${ALIST_DATA}/config.json"
 if [ ! -f "$ALIST_CONFIG" ]; then
     echo "Generating Alist default config..."
-    cd /config/alist && /usr/local/bin/alist admin random --data /config/alist 2>/dev/null || true
+    cd "$ALIST_DATA" && /usr/local/bin/alist admin random --data "$ALIST_DATA" 2>/dev/null || true
 fi
 
 # Set Alist site_url for subpath routing

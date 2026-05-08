@@ -112,10 +112,36 @@ docker run -d --name media-center --privileged \
 
 ## 环境变量
 
+所有 MeTube、Alist、Emby 原项目的官方环境变量均可直接通过 `docker run -e` 或 `docker-compose.yml` 传入。
+
+### 容器专用变量
+
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `ALIST_USER` | `admin` | Alist 用户名（rclone WebDAV 认证） |
-| `ALIST_PASS` | _(空)_ | Alist 密码（rclone WebDAV 认证） |
+| `ALIST_USER` | `admin` | rclone WebDAV 认证用户名 |
+| `ALIST_PASS` | _(空)_ | rclone WebDAV 认证密码 |
+| `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
+| `EMBY_PROGRAMDATA` | `/config/emby` | Emby 数据目录 |
+
+### MeTube 官方变量（可直接使用）
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `DOWNLOAD_DIR` | `/downloads` | 下载目录 |
+| `STATE_DIR` | `/downloads/.metube` | 状态目录 |
+| `TEMP_DIR` | `/downloads` | 临时目录 |
+| `YTDL_OPTIONS` | `{}` | yt-dlp 选项 (JSON) |
+| `OUTPUT_TEMPLATE` | `%(title)s.%(ext)s` | 输出文件名模板 |
+| `DARK_MODE` | `true` | 深色模式 |
+
+> 更多 MeTube 变量见 [MeTube 官方文档](https://github.com/alexta69/metube#environment-variables)
+
+### 被锁定的变量（不可更改）
+
+| 变量 | 锁定值 | 原因 |
+|------|--------|------|
+| `URL_PREFIX` | `/metube/` | Caddy 路由依赖此路径 |
+| MeTube `PORT` | `8081` | 内部端口，Caddy 转发用 |
 
 ## 技术栈
 
