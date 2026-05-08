@@ -8,8 +8,18 @@
         file_server
     }
 
-    # Emby - 不剥离前缀，Emby 内部使用 BaseUrl=/emby
+    # Emby Web UI (Emby 默认将 UI 放在 /web/ 路径)
+    handle /web/* {
+        reverse_proxy localhost:8096
+    }
+
+    # Emby API (Emby 默认将 API 放在 /emby/ 路径)
     handle /emby/* {
+        reverse_proxy localhost:8096
+    }
+
+    # Emby WebSocket
+    handle /embywebsocket {
         reverse_proxy localhost:8096
     }
 
