@@ -7,7 +7,11 @@ import json
 import logging
 import sys
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s',
+                    handlers=[
+                        logging.StreamHandler(),
+                        logging.FileHandler("/var/log/alist-strm-sync.log", encoding="utf-8"),
+                    ])
 
 ALIST_BASE = "/alist"
 ALIST_URL = f"http://localhost:5244{ALIST_BASE}"

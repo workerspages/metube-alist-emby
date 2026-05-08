@@ -130,13 +130,18 @@ def check_supervisor_status():
 
 def get_sync_log():
     """读取 STRM 同步的最近日志"""
+    log_file = "/var/log/alist-strm-sync.log"
     try:
-        import subprocess
-        out = subprocess.check_output(
-            ["supervisorctl", "tail", "-3000", "alist-strm-sync"],
-            timeout=5, stderr=subprocess.STDOUT
-        )
-        return {"status": "ok", "log": out.decode(errors="replace")}
+        if not os.path.exists(log_file):
+            return {"status": "ok", "log": "（日志文件尚未创建）"}
+        with open(log_file, "r", errors="replace") as f:
+            # 读取最后 5000 个字符
+            f.seek(0, 2)  # seek to end
+            size = f.tell()
+            read_size = min(size, 5000)
+            f.seek(max(0, size - read_size))
+            content = f.read()
+        return {"status": "ok", "log": content or "（日志为空）"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -327,7 +332,7 @@ function render() {
     html += '</div>';
 
     // 5. 服务状态
-    html += '<div class="card"><h2>🏗️ Supervisor 服务状态 ${badge(data.supervisor.status)}</h2>';
+    html += `<div class="card"><h2>🏗️ Supervisor 服务状态 ${badge(data.supervisor.status)}</h2>`;
     if (data.supervisor.status === 'ok') {
         html += '<table><tr><th>服务</th><th>状态</th><th>详情</th></tr>';
         data.supervisor.services.forEach(s => {
