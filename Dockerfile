@@ -131,6 +131,8 @@ RUN mkdir -p /downloads /config/alist /config/emby /media/alist /.cache \
 # Users can override these with docker run -e
 # ------------------------------------------
 
+ENV TZ=Asia/Shanghai
+
 # MeTube defaults
 ENV DOWNLOAD_DIR=/downloads
 ENV STATE_DIR=/downloads/.metube
