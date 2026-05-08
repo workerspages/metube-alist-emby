@@ -36,7 +36,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gpg \
   jq \
   fuse3 \
-  qbittorrent-nox \
   && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------
@@ -76,6 +75,19 @@ RUN curl -L -o /tmp/alist.tar.gz \
   && tar -xzf /tmp/alist.tar.gz -C /usr/local/bin/ \
   && chmod +x /usr/local/bin/alist \
   && rm -f /tmp/alist.tar.gz
+
+# ------------------------------------------
+# Install qBittorrent Enhanced Edition
+# ------------------------------------------
+RUN case "$TARGETARCH" in \
+  amd64) QBIT_ARCH="x86_64" ;; \
+  arm64) QBIT_ARCH="aarch64" ;; \
+  esac \
+  && curl -L -o /tmp/qbittorrent-ee.zip \
+  "https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases/latest/download/qbittorrent-enhanced-nox_${QBIT_ARCH}-linux-musl_static.zip" \
+  && unzip -o -q /tmp/qbittorrent-ee.zip -d /usr/local/bin/ \
+  && chmod +x /usr/local/bin/qbittorrent-nox \
+  && rm -f /tmp/qbittorrent-ee.zip
 
 # ------------------------------------------
 # Copy python sync script

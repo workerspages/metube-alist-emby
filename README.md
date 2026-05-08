@@ -163,7 +163,7 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 |------|------|
 | [Emby](https://emby.media/) | 媒体服务器 |
 | [MeTube](https://github.com/alexta69/metube) | yt-dlp Web 下载器 |
-| [qBittorrent](https://github.com/qbittorrent/qBittorrent) | BT/PT 下载客户端 |
+| [qBittorrent EE](https://github.com/c0re100/qBittorrent-Enhanced-Edition) | BT/PT 增强版下载客户端 |
 | [Alist](https://github.com/AlistGo/alist) | 网盘挂载工具 |
 | [rclone](https://rclone.org/) | WebDAV → 本地文件系统挂载 |
 | [Caddy](https://caddyserver.com/) | 反向代理 |
