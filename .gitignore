@@ -1,0 +1,15 @@
+# 运行时数据目录
+emby-config/
+downloads/
+alist-data/
+
+# 环境变量（包含敏感信息）
+.env
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
