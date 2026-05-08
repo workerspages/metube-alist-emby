@@ -8,12 +8,14 @@ services:
     volumes:
       - ./downloads:/downloads
       - ./config:/config
+    # --- 新增以下部分以支持 rclone (FUSE) 挂载 ---
     cap_add:
       - SYS_ADMIN
     devices:
       - /dev/fuse:/dev/fuse
     security_opt:
       - apparmor:unconfined
+    # ---------------------------------------------
     environment:
       - TZ=-Asia/Shanghai
 
