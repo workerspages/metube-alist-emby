@@ -7,24 +7,19 @@
         root * /srv/portal
         file_server
     }
-    handle /portal/* {
-        root * /srv/portal
-        uri strip_prefix /portal
-        file_server
-    }
 
     # Emby - 不剥离前缀，Emby 内部使用 BaseUrl=/emby
     handle /emby/* {
         reverse_proxy localhost:8096
     }
 
-    # MeTube - 剥离 /metube 前缀
-    handle_path /metube/* {
+    # MeTube - 不剥离前缀，MeTube 通过 URL_PREFIX 处理
+    handle /metube/* {
         reverse_proxy localhost:8081
     }
 
-    # Alist - 剥离 /alist 前缀
-    handle_path /alist/* {
+    # Alist - 不剥离前缀，Alist 通过 site_url 处理
+    handle /alist/* {
         reverse_proxy localhost:5244
     }
 }
