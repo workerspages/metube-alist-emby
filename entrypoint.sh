@@ -21,6 +21,15 @@ chmod 755 /downloads /media /media/alist
 ln -sfn /downloads /media/downloads
 
 # ------------------------------------------
+# Initialize Emby configuration
+# ------------------------------------------
+if [ -d /opt/default-emby-config ]; then
+    echo "Initializing Emby configuration from defaults..."
+    cp -rn /opt/default-emby-config/* "${EMBY_PROGRAMDATA:-/config/emby}/" 2>/dev/null || true
+    # Ensure correct permissions if needed, though running as root it's fine
+fi
+
+# ------------------------------------------
 # Install Emby plugins from /opt/emby-plugins
 # Emby system plugins directory: /opt/emby-server/system/plugins/
 # ------------------------------------------

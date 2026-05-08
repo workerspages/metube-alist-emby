@@ -120,6 +120,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY entrypoint.sh /entrypoint.sh
 COPY portal /srv/portal
 COPY emby-plugin /opt/emby-plugins
+COPY config/emby /opt/default-emby-config
 
 RUN chmod +x /entrypoint.sh
 
