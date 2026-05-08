@@ -1,0 +1,9 @@
+.git
+.github
+*.md
+.gitignore
+.env
+.env.example
+emby-config/
+downloads/
+alist-data/

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Center</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .card.emby { border-top: 3px solid #52b54b; }
+        .card.emby:hover { box-shadow: 0 20px 40px rgba(82, 181, 75, 0.15); }
+
+        .card.metube { border-top: 3px solid #ff4444; }
+        .card.metube:hover { box-shadow: 0 20px 40px rgba(255, 68, 68, 0.15); }
+
+        .card.alist { border-top: 3px solid #1890ff; }
+        .card.alist:hover { box-shadow: 0 20px 40px rgba(24, 144, 255, 0.15); }
+
+        footer {
+            margin-top: 3rem;
+            color: #475569;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Media Center</h1>
+        <p class="subtitle">MeTube + Alist + Emby All-in-One</p>
+
+        <div class="cards">
+            <a href="/emby/web/" class="card emby" id="card-emby">
+                <span class="icon">📺</span>
+                <h2>Emby</h2>
+                <p>媒体服务器<br>管理和播放您的影视库</p>
+            </a>
+
+            <a href="/metube/" class="card metube" id="card-metube">
+                <span class="icon">⬇️</span>
+                <h2>MeTube</h2>
+                <p>视频下载器<br>从 YouTube 等网站下载视频</p>
+            </a>
+
+            <a href="/alist/" class="card alist" id="card-alist">
+                <span class="icon">☁️</span>
+                <h2>Alist</h2>
+                <p>网盘管理<br>挂载和浏览云存储</p>
+            </a>
+        </div>
+
+        <footer>
+            <p>Powered by Docker | All services running on port 8080</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,53 +1,12 @@
 services:
-  emby:
-    image: emby/embyserver:latest
-    container_name: emby
+  media-center:
+    image: ghcr.io/workerspages/metube-alist-emby:latest
+    container_name: media-center
     restart: unless-stopped
-    environment:
-      - UID=${UID:-1000}
-      - GID=${GID:-1000}
-      - GIDLIST=${GID:-1000}
-    volumes:
-      - ./emby-config:/config
-      - ./downloads:/media/downloads:ro
-      - ./alist-data:/media/alist:ro
     ports:
-      - "${EMBY_PORT:-8080}:8096"
-    depends_on:
-      - metube
-      - alist
-    networks:
-      - media-network
-
-  metube:
-    image: ghcr.io/alexta69/metube:latest
-    container_name: metube
-    restart: unless-stopped
-    environment:
-      - UID=${UID:-1000}
-      - GID=${GID:-1000}
+      - "${PORT:-8080}:8080"
     volumes:
       - ./downloads:/downloads
-    ports:
-      - "${METUBE_PORT:-8880}:8081"
-    networks:
-      - media-network
-
-  alist:
-    image: xhofe/alist:latest
-    container_name: alist
-    restart: unless-stopped
+      - ./config:/config
     environment:
-      - PUID=0
-      - PGID=0
-      - UMASK=022
-    volumes:
-      - ./alist-data:/opt/alist/data
-    ports:
-      - "${ALIST_PORT:-2052}:5244"
-    networks:
-      - media-network
-
-networks:
-  media-network:
-    driver: bridge
+      - TZ=${TZ:-Asia/Shanghai}

@@ -1,0 +1,30 @@
+# Caddy 反向代理配置
+# 统一端口 :8080，通过路径分发到各服务
+
+:8080 {
+    # 门户首页
+    handle / {
+        root * /srv/portal
+        file_server
+    }
+    handle /portal/* {
+        root * /srv/portal
+        uri strip_prefix /portal
+        file_server
+    }
+
+    # Emby - 不剥离前缀，Emby 内部使用 BaseUrl=/emby
+    handle /emby/* {
+        reverse_proxy localhost:8096
+    }
+
+    # MeTube - 剥离 /metube 前缀
+    handle_path /metube/* {
+        reverse_proxy localhost:8081
+    }
+
+    # Alist - 剥离 /alist 前缀
+    handle_path /alist/* {
+        reverse_proxy localhost:5244
+    }
+}

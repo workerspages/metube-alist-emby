@@ -1,120 +1,117 @@
-# MeTube + Alist + Emby
+# MeTube + Alist + Emby All-in-One
 
-[![Validate and Release](https://github.com/workerspages/metube-alist-emby/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/workerspages/metube-alist-emby/actions/workflows/docker-publish.yml)
+[![Build and Push](https://github.com/workerspages/metube-alist-emby/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/workerspages/metube-alist-emby/actions/workflows/docker-publish.yml)
 
-一键部署 **Emby 媒体服务器** + **MeTube 视频下载器** + **Alist 网盘挂载** 的 Docker Compose 项目。
+单容器部署 **Emby 媒体服务器** + **MeTube 视频下载器** + **Alist 网盘挂载**，适用于 PaaS 平台。
 
 ## 架构
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  Docker Network                  │
-│                                                  │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
-│  │  MeTube   │  │  Alist   │  │   Emby   │      │
-│  │  :8880    │  │  :2052   │  │  :8080   │      │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘      │
-│       │              │             │             │
-│       ▼              ▼             │             │
-│  ./downloads    ./alist-data ──────┘             │
-│       │                            │             │
-│       └────────────────────────────┘             │
-│            共享媒体目录 (只读)                     │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│            单容器 (supervisord)                    │
+│                                                   │
+│   ┌─────────┐                                     │
+│   │  Caddy   │ ← :8080 (唯一对外端口)              │
+│   │  反向代理 │                                    │
+│   └────┬─────┘                                    │
+│        │                                          │
+│   ┌────┼──────────┬──────────┬──────────┐        │
+│   │    ▼          ▼          ▼          ▼        │
+│   │    /       /emby/*   /metube/*  /alist/*     │
+│   │  门户页    Emby       MeTube     Alist       │
+│   │          :8096       :8081      :5244        │
+│   └─────────────────────────────────────────┘    │
+│                                                   │
+│   共享目录: /downloads, /config                    │
+└──────────────────────────────────────────────────┘
 ```
-
-- **MeTube** 下载视频到 `./downloads`，Emby 以只读方式挂载
-- **Alist** 挂载网盘数据到 `./alist-data`，Emby 以只读方式挂载
-- **Emby** 从两个目录读取媒体文件提供流媒体服务
 
 ## 快速开始
 
-### 1. 克隆项目
+### Docker Compose（推荐）
 
 ```bash
 git clone https://github.com/workerspages/metube-alist-emby.git
 cd metube-alist-emby
-```
-
-### 2. 配置环境变量（可选）
-
-```bash
-cp .env.example .env
-# 根据需要编辑 .env 文件
-```
-
-### 3. 启动服务
-
-```bash
 docker compose up -d
 ```
 
-### 4. 访问服务
+### Docker Run
 
-| 服务 | 地址 | 说明 |
+```bash
+docker run -d \
+  --name media-center \
+  -p 8080:8080 \
+  -v ./downloads:/downloads \
+  -v ./config:/config \
+  ghcr.io/workerspages/metube-alist-emby:latest
+```
+
+### 访问服务
+
+打开 `http://localhost:8080` 即可看到门户页面。
+
+| 路径 | 服务 | 说明 |
 |------|------|------|
-| Emby | `http://localhost:8080` | 媒体服务器 Web UI |
-| MeTube | `http://localhost:8880` | 视频下载器 Web UI |
-| Alist | `http://localhost:2052` | 网盘管理 Web UI |
+| `/` | 门户 | 导航页面 |
+| `/emby/web/` | Emby | 媒体服务器 |
+| `/metube/` | MeTube | 视频下载器 |
+| `/alist/` | Alist | 网盘管理 |
 
-## 端口说明
+## 镜像来源
 
-所有端口均兼容 Cloudflare HTTP 代理：
+| 平台 | 地址 |
+|------|------|
+| GHCR | `ghcr.io/workerspages/metube-alist-emby:latest` |
+| Docker Hub | `docker.io/workerspages/metube-alist-emby:latest` |
 
-| 服务 | 宿主机端口 | 容器端口 | 环境变量 |
-|------|-----------|---------|----------|
-| Emby | 8080 | 8096 | `EMBY_PORT` |
-| MeTube | 8880 | 8081 | `METUBE_PORT` |
-| Alist | 2052 | 5244 | `ALIST_PORT` |
+支持架构：`linux/amd64`、`linux/arm64`
 
-## 服务配置
+## 数据持久化
+
+| 容器路径 | 说明 |
+|---------|------|
+| `/downloads` | MeTube 下载文件，同时作为 Emby 媒体源 |
+| `/config` | 所有服务配置数据 |
+| `/config/emby` | Emby 配置和数据库 |
+| `/config/alist` | Alist 配置和数据 |
+
+## 初始配置
 
 ### Emby
 
-首次启动后访问 `http://localhost:8080` 完成初始设置向导。添加媒体库时选择：
-- `/media/downloads` — MeTube 下载的视频
-- `/media/alist` — Alist 挂载的网盘文件
+首次访问 `/emby/web/` 完成设置向导。添加媒体库时选择 `/downloads` 目录。
 
 ### MeTube
 
-访问 `http://localhost:8880`，粘贴视频链接即可下载。下载的文件会自动出现在 Emby 媒体库中。
+访问 `/metube/`，粘贴视频链接即可下载。
 
 ### Alist
 
-1. 访问 `http://localhost:2052`
-2. 设置管理员密码：
+1. 查看初始管理员密码：
    ```bash
-   docker exec -it alist ./alist admin set YOUR_PASSWORD
+   docker exec media-center cat /config/alist/admin_password.txt 2>/dev/null || \
+   docker logs media-center 2>&1 | grep -i password
    ```
-3. 登录后在 **存储** 页面添加网盘驱动（阿里云盘、Google Drive、OneDrive 等）
-4. 挂载的文件会自动出现在 Emby 媒体库中
+2. 访问 `/alist/` 并登录
+3. 在存储页面添加网盘驱动
 
-## 数据目录
+## PaaS 部署
 
-| 目录 | 说明 |
+本项目专为 PaaS 平台设计：
+- **单容器**：所有服务打包在一个镜像中
+- **单端口**：仅暴露 8080 端口（Cloudflare 兼容）
+- **Caddy 反代**：自动路径分发到各服务
+
+## 技术栈
+
+| 组件 | 用途 |
 |------|------|
-| `./emby-config/` | Emby 配置和数据库 |
-| `./downloads/` | MeTube 下载文件 |
-| `./alist-data/` | Alist 配置和数据 |
-
-## 更新服务
-
-```bash
-docker compose pull
-docker compose up -d
-```
-
-## 停止服务
-
-```bash
-docker compose down
-```
-
-## GitHub Actions
-
-项目使用 GitHub Actions 自动化：
-- **推送到 main**：验证 `docker-compose.yml` 语法
-- **推送 tag**（如 `v1.0.0`）：验证配置并创建 GitHub Release
+| [Emby](https://emby.media/) | 媒体服务器 |
+| [MeTube](https://github.com/alexta69/metube) | yt-dlp Web 下载器 |
+| [Alist](https://github.com/AlistGo/alist) | 网盘挂载工具 |
+| [Caddy](https://caddyserver.com/) | 反向代理 |
+| [Supervisord](http://supervisord.org/) | 进程管理 |
 
 ## License
 

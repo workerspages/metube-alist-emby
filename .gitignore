@@ -1,6 +1,7 @@
-# 运行时数据目录
-emby-config/
+# 运行时数据
 downloads/
+config/
+emby-config/
 alist-data/
 
 # 环境变量（包含敏感信息）
