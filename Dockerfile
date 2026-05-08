@@ -77,14 +77,10 @@ RUN curl -L -o /tmp/alist.tar.gz \
   && rm -f /tmp/alist.tar.gz
 
 # ------------------------------------------
-# Install rclone (mount Alist WebDAV for Emby)
+# Copy python sync script
 # ------------------------------------------
-RUN curl -L -o /tmp/rclone.zip \
-  "https://downloads.rclone.org/rclone-current-linux-${TARGETARCH}.zip" \
-  && cd /tmp && unzip -q rclone.zip \
-  && cp /tmp/rclone-*/rclone /usr/local/bin/ \
-  && chmod +x /usr/local/bin/rclone \
-  && rm -rf /tmp/rclone*
+COPY alist-strm-sync.py /app/alist-strm-sync.py
+RUN chmod +x /app/alist-strm-sync.py
 
 # ------------------------------------------
 # Install MeTube
@@ -121,11 +117,10 @@ RUN apt-get purge -y --auto-remove build-essential \
 COPY Caddyfile /etc/caddy/Caddyfile
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY entrypoint.sh /entrypoint.sh
-COPY rclone-mount.sh /rclone-mount.sh
 COPY portal /srv/portal
 COPY emby-plugin /opt/emby-plugins
 
-RUN chmod +x /entrypoint.sh /rclone-mount.sh
+RUN chmod +x /entrypoint.sh
 
 # Create data directories
 RUN mkdir -p /downloads /config/alist /config/emby /media/alist /.cache \
