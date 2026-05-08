@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Build MeTube UI
 # ============================================
-FROM node:lts-alpine AS metube-builder
+FROM --platform=$BUILDPLATFORM node:lts-alpine AS metube-builder
 
 WORKDIR /build
 RUN apk add --no-cache git
