@@ -72,36 +72,50 @@ docker run -d \
 | 容器路径 | 说明 |
 |---------|------|
 | `/downloads` | MeTube 下载文件，同时作为 Emby 媒体源 |
+| `/media/alist` | Alist 网盘通过 rclone 挂载，作为 Emby 媒体源 |
 | `/config` | 所有服务配置数据 |
-| `/config/emby` | Emby 配置和数据库 |
-| `/config/alist` | Alist 配置和数据 |
 
 ## 初始配置
 
-### Emby
-
-首次访问 `/emby/web/` 完成设置向导。添加媒体库时选择 `/downloads` 目录。
-
-### MeTube
-
-访问 `/metube/`，粘贴视频链接即可下载。
-
-### Alist
+### 1. 配置 Alist
 
 1. 查看初始管理员密码：
    ```bash
-   docker exec media-center cat /config/alist/admin_password.txt 2>/dev/null || \
    docker logs media-center 2>&1 | grep -i password
    ```
 2. 访问 `/alist/` 并登录
-3. 在存储页面添加网盘驱动
+3. 在**存储**页面添加网盘驱动
 
-## PaaS 部署
+### 2. rclone 挂载（Alist → Emby）
 
-本项目专为 PaaS 平台设计：
-- **单容器**：所有服务打包在一个镜像中
-- **单端口**：仅暴露 8080 端口（Cloudflare 兼容）
-- **Caddy 反代**：自动路径分发到各服务
+Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`。启动时设置认证信息：
+
+```bash
+docker run -d --name media-center --privileged \
+  -p 8080:8080 \
+  -e ALIST_USER=admin \
+  -e ALIST_PASS=your_password \
+  -v ./downloads:/downloads \
+  -v ./config:/config \
+  ghcr.io/workerspages/metube-alist-emby:latest
+```
+
+### 3. 配置 Emby
+
+访问 `/web/` 完成设置向导，添加媒体库选择：
+- `/downloads` — MeTube 下载的视频
+- `/media/alist` — Alist 挂载的网盘文件
+
+### MeTube
+
+访问 `/metube/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
+
+## 环境变量
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `ALIST_USER` | `admin` | Alist 用户名（rclone WebDAV 认证） |
+| `ALIST_PASS` | _(空)_ | Alist 密码（rclone WebDAV 认证） |
 
 ## 技术栈
 
@@ -110,9 +124,11 @@ docker run -d \
 | [Emby](https://emby.media/) | 媒体服务器 |
 | [MeTube](https://github.com/alexta69/metube) | yt-dlp Web 下载器 |
 | [Alist](https://github.com/AlistGo/alist) | 网盘挂载工具 |
+| [rclone](https://rclone.org/) | WebDAV → 本地文件系统挂载 |
 | [Caddy](https://caddyserver.com/) | 反向代理 |
 | [Supervisord](http://supervisord.org/) | 进程管理 |
 
 ## License
 
 MIT
+

@@ -35,6 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gpg \
     jq \
+    fuse3 \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------
@@ -72,6 +73,16 @@ RUN curl -L -o /tmp/alist.tar.gz \
     && rm -f /tmp/alist.tar.gz
 
 # ------------------------------------------
+# Install rclone (mount Alist WebDAV for Emby)
+# ------------------------------------------
+RUN curl -L -o /tmp/rclone.zip \
+      "https://downloads.rclone.org/rclone-current-linux-${TARGETARCH}.zip" \
+    && cd /tmp && unzip -q rclone.zip \
+    && cp /tmp/rclone-*/rclone /usr/local/bin/ \
+    && chmod +x /usr/local/bin/rclone \
+    && rm -rf /tmp/rclone*
+
+# ------------------------------------------
 # Install MeTube
 # ------------------------------------------
 WORKDIR /app/metube
@@ -98,12 +109,13 @@ RUN apt-get purge -y --auto-remove build-essential \
 COPY Caddyfile /etc/caddy/Caddyfile
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY entrypoint.sh /entrypoint.sh
+COPY rclone-mount.sh /rclone-mount.sh
 COPY portal /srv/portal
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh /rclone-mount.sh
 
 # Create data directories
-RUN mkdir -p /downloads /config/alist /config/emby /.cache \
+RUN mkdir -p /downloads /config/alist /config/emby /media/alist /.cache \
     && chmod 777 /.cache
 
 ENV PORT=8080
