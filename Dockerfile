@@ -56,7 +56,10 @@ RUN EMBY_VERSION=$(curl -s https://api.github.com/repos/MediaBrowser/Emby.Releas
     && echo "Installing Emby ${EMBY_VERSION} for ${TARGETARCH}" \
     && curl -L -o /tmp/emby.deb \
       "https://github.com/MediaBrowser/Emby.Releases/releases/download/${EMBY_VERSION}/emby-server-deb_${EMBY_VERSION}_${TARGETARCH}.deb" \
-    && dpkg -i /tmp/emby.deb || apt-get install -f -y \
+    && dpkg --unpack /tmp/emby.deb \
+    && rm -f /var/lib/dpkg/info/emby-server.postinst \
+    && dpkg --configure emby-server \
+    && apt-get install -f -y --no-install-recommends \
     && rm -f /tmp/emby.deb
 
 # ------------------------------------------
