@@ -131,6 +131,10 @@ RUN mkdir -p /downloads /config/alist /config/emby /media/alist /.cache \
 # Users can override these with docker run -e
 # ------------------------------------------
 
+ENV UID=0
+ENV GID=0
+ENV UMASK=022
+ENV GIDLIST=0
 ENV TZ=Asia/Shanghai
 
 # MeTube defaults
