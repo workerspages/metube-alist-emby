@@ -27,6 +27,16 @@ fi
 ln -sfn /downloads /media/downloads
 
 # ------------------------------------------
+# Install Emby plugins from /opt/emby-plugins
+# ------------------------------------------
+EMBY_PLUGIN_DIR="${EMBY_PROGRAMDATA:-/config/emby}/plugins"
+mkdir -p "$EMBY_PLUGIN_DIR"
+if [ -d /opt/emby-plugins ] && [ "$(ls -A /opt/emby-plugins 2>/dev/null)" ]; then
+    cp -rn /opt/emby-plugins/* "$EMBY_PLUGIN_DIR/" 2>/dev/null || true
+    echo "Emby plugins installed to $EMBY_PLUGIN_DIR"
+fi
+
+# ------------------------------------------
 # Configure Alist
 # ------------------------------------------
 ALIST_CONFIG="${ALIST_DATA}/config.json"

@@ -119,6 +119,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY entrypoint.sh /entrypoint.sh
 COPY rclone-mount.sh /rclone-mount.sh
 COPY portal /srv/portal
+COPY emby-plugin /opt/emby-plugins
 
 RUN chmod +x /entrypoint.sh /rclone-mount.sh
 
