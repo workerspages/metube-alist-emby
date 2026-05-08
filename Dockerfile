@@ -134,6 +134,7 @@ COPY entrypoint.sh /entrypoint.sh
 COPY portal /srv/portal
 COPY emby-plugin /opt/emby-plugins
 COPY config/emby /opt/default-emby-config
+COPY config/qbittorrent /opt/default-qbittorrent-config
 
 RUN chmod +x /entrypoint.sh
 

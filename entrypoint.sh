@@ -69,25 +69,14 @@ if [ -f "$ALIST_CONFIG" ] && command -v jq &> /dev/null; then
 fi
 
 # ------------------------------------------
-# Configure qBittorrent
+# Initialize qBittorrent configuration
 # ------------------------------------------
 QBIT_CONFIG_DIR="/config/qBittorrent/qBittorrent"
 mkdir -p "$QBIT_CONFIG_DIR"
-QBIT_CONF="$QBIT_CONFIG_DIR/qBittorrent.conf"
 
-if [ ! -f "$QBIT_CONF" ]; then
-    echo "Initializing qBittorrent default configuration..."
-    cat > "$QBIT_CONF" << EOF
-[LegalNotice]
-Accepted=true
-
-[Preferences]
-Downloads\SavePath=/downloads/
-WebUI\Port=8082
-WebUI\HostHeaderValidation=false
-WebUI\CSRFProtection=false
-WebUI\LocalHostAuth=false
-EOF
+if [ -d /opt/default-qbittorrent-config ]; then
+    echo "Initializing qBittorrent configuration from preset defaults..."
+    cp -rn /opt/default-qbittorrent-config/* "$QBIT_CONFIG_DIR/" 2>/dev/null || true
 fi
 
 echo "Starting all services via supervisord..."
