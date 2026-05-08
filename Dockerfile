@@ -155,6 +155,7 @@ ENV EMBY_PROGRAMDATA=/config/emby
 
 # Alist defaults
 ENV ALIST_DATA=/config/alist
+ENV ALIST_ADMIN_PASS=""
 
 # Container port
 ENV PORT=8080
