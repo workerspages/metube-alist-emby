@@ -22,12 +22,21 @@ ln -sfn /downloads /media/downloads
 
 # ------------------------------------------
 # Install Emby plugins from /opt/emby-plugins
+# Emby requires plugins in: plugins/{Name}_{Version}/{Name}.dll
 # ------------------------------------------
 EMBY_PLUGIN_DIR="${EMBY_PROGRAMDATA:-/config/emby}/plugins"
 mkdir -p "$EMBY_PLUGIN_DIR"
-if [ -d /opt/emby-plugins ] && [ "$(ls -A /opt/emby-plugins 2>/dev/null)" ]; then
-    cp -rn /opt/emby-plugins/* "$EMBY_PLUGIN_DIR/" 2>/dev/null || true
-    echo "Emby plugins installed to $EMBY_PLUGIN_DIR"
+if [ -d /opt/emby-plugins ]; then
+    for dll in /opt/emby-plugins/*.dll; do
+        [ -f "$dll" ] || continue
+        PLUGIN_NAME=$(basename "$dll" .dll)
+        PLUGIN_DEST="$EMBY_PLUGIN_DIR/${PLUGIN_NAME}_1.0.0.0"
+        if [ ! -d "$PLUGIN_DEST" ]; then
+            mkdir -p "$PLUGIN_DEST"
+            cp "$dll" "$PLUGIN_DEST/"
+            echo "Installed Emby plugin: $PLUGIN_NAME -> $PLUGIN_DEST"
+        fi
+    done
 fi
 
 # ------------------------------------------
