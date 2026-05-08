@@ -4,9 +4,16 @@ services:
     container_name: media-center
     restart: unless-stopped
     ports:
-      - "${PORT:-8080}:8080"
+      - "8080:8080"
     volumes:
       - ./downloads:/downloads
       - ./config:/config
     environment:
-      - TZ=${TZ:-Asia/Shanghai}
+      - TZ=-Asia/Shanghai
+
+      # Alist 管理员密码（每次启动时设置）
+      - ALIST_ADMIN_PASS=adminadmin
+
+      # rclone WebDAV 认证
+      - ALIST_USER=admin
+      - ALIST_PASS=adminadmin
