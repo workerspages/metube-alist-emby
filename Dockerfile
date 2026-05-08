@@ -63,6 +63,10 @@ RUN EMBY_VERSION=$(curl -s https://api.github.com/repos/MediaBrowser/Emby.Releas
   && apt-get install -f -y --no-install-recommends \
   && rm -f /tmp/emby.deb
 
+# Remove emby user/group created by deb package to prevent privilege dropping
+# In container environment, emby-server should run as root for full filesystem access
+RUN userdel -r emby 2>/dev/null; groupdel emby 2>/dev/null; true
+
 # ------------------------------------------
 # Install Alist
 # ------------------------------------------
