@@ -32,4 +32,10 @@
     handle /alist/* {
         reverse_proxy localhost:5244
     }
+
+    # STRM Sync 诊断面板
+    handle /debug/* {
+        uri strip_prefix /debug
+        reverse_proxy localhost:9090
+    }
 }

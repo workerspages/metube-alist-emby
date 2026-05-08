@@ -89,6 +89,9 @@
         .card.alist { border-top: 3px solid #1890ff; }
         .card.alist:hover { box-shadow: 0 20px 40px rgba(24, 144, 255, 0.15); }
 
+        .card.debug { border-top: 3px solid #f59e0b; }
+        .card.debug:hover { box-shadow: 0 20px 40px rgba(245, 158, 11, 0.15); }
+
         footer {
             margin-top: 3rem;
             color: #475569;
@@ -118,6 +121,12 @@
                 <span class="icon">☁️</span>
                 <h2>Alist</h2>
                 <p>网盘管理<br>挂载和浏览云存储</p>
+            </a>
+
+            <a href="/debug/" class="card debug" id="card-debug">
+                <span class="icon">🔧</span>
+                <h2>诊断面板</h2>
+                <p>STRM 同步状态<br>排查网盘挂载问题</p>
             </a>
         </div>
 

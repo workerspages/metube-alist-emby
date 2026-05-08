@@ -80,7 +80,8 @@ RUN curl -L -o /tmp/alist.tar.gz \
 # Copy python sync script
 # ------------------------------------------
 COPY alist-strm-sync.py /app/alist-strm-sync.py
-RUN chmod +x /app/alist-strm-sync.py
+COPY strm-debug-server.py /app/strm-debug-server.py
+RUN chmod +x /app/alist-strm-sync.py /app/strm-debug-server.py
 
 # ------------------------------------------
 # Install MeTube
