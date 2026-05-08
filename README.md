@@ -57,6 +57,7 @@ docker run -d \
 | `/emby/web/` | Emby | 媒体服务器 |
 | `/metube/` | MeTube | 视频下载器 |
 | `/alist/` | Alist | 网盘管理 |
+| `/debug/` | Alist | 诊断面板 |
 
 ## 镜像来源
 
@@ -115,7 +116,7 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 点击输入框右侧的放大镜（搜索）图标，或者直接点击下方的绿色“确定”按钮。
 
 插件目录：
-/opt/emby-server/system/plugins/
+`/opt/emby-server/system/plugins/`
 
 ### MeTube
 
