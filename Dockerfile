@@ -93,8 +93,16 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin s
     && uv cache clean \
     && rm -f /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/uvw
 
-# Install Deno (used by MeTube)
-RUN curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh -s -- -y
+# Install Deno (used by MeTube) - download binary directly to avoid QEMU crash
+RUN case "$TARGETARCH" in \
+      amd64) DENO_ARCH="x86_64" ;; \
+      arm64) DENO_ARCH="aarch64" ;; \
+    esac \
+    && curl -fsSL -o /tmp/deno.zip \
+      "https://github.com/denoland/deno/releases/latest/download/deno-${DENO_ARCH}-unknown-linux-gnu.zip" \
+    && unzip -q /tmp/deno.zip -d /usr/local/bin/ \
+    && chmod +x /usr/local/bin/deno \
+    && rm -f /tmp/deno.zip
 
 COPY --from=metube-builder /build/app ./app
 COPY --from=metube-builder /build/ui/dist/metube ./ui/dist/metube
