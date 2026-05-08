@@ -146,6 +146,61 @@ def get_sync_log():
         return {"status": "error", "message": str(e)}
 
 
+def check_emby_plugins():
+    """检查 Emby 插件目录内容"""
+    programdata = os.environ.get("EMBY_PROGRAMDATA", "/config/emby")
+    plugin_dir = os.path.join(programdata, "plugins")
+    result = {"plugin_dir": plugin_dir, "files": [], "dirs": []}
+    if not os.path.exists(plugin_dir):
+        return {"status": "error", "plugin_dir": plugin_dir, "message": f"目录不存在: {plugin_dir}"}
+    try:
+        for item in sorted(os.listdir(plugin_dir)):
+            full_path = os.path.join(plugin_dir, item)
+            if os.path.isfile(full_path):
+                size = os.path.getsize(full_path)
+                result["files"].append({"name": item, "size": size})
+            elif os.path.isdir(full_path):
+                sub_items = os.listdir(full_path)
+                result["dirs"].append({"name": item, "contents": sub_items})
+        result["status"] = "ok"
+    except Exception as e:
+        result["status"] = "error"
+        result["message"] = str(e)
+    return result
+
+
+def get_emby_log():
+    """读取 Emby 最近日志（查找插件加载信息）"""
+    programdata = os.environ.get("EMBY_PROGRAMDATA", "/config/emby")
+    log_dir = os.path.join(programdata, "logs")
+    if not os.path.exists(log_dir):
+        return {"status": "error", "message": f"日志目录不存在: {log_dir}"}
+    try:
+        # 找最新的日志文件
+        log_files = [f for f in os.listdir(log_dir) if f.endswith(".txt") or f.endswith(".log")]
+        if not log_files:
+            return {"status": "ok", "log": "（无日志文件）"}
+        log_files.sort(key=lambda f: os.path.getmtime(os.path.join(log_dir, f)), reverse=True)
+        latest = os.path.join(log_dir, log_files[0])
+        with open(latest, "r", errors="replace") as f:
+            f.seek(0, 2)
+            size = f.tell()
+            read_size = min(size, 8000)
+            f.seek(max(0, size - read_size))
+            content = f.read()
+        # 过滤出插件相关日志
+        plugin_lines = []
+        for line in content.split("\n"):
+            low = line.lower()
+            if "plugin" in low or "metatube" in low or "assembly" in low or "loaded" in low:
+                plugin_lines.append(line)
+        return {"status": "ok", "log_file": log_files[0],
+                "plugin_lines": "\n".join(plugin_lines[-30:]) if plugin_lines else "（未找到插件相关日志）",
+                "full_tail": content[-3000:]}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 def get_env_info():
     """获取相关环境变量（脱敏）"""
     keys = ["ALIST_USER", "ALIST_DATA", "EMBY_PROGRAMDATA", "TZ"]
@@ -367,7 +422,51 @@ function render() {
 
     html += '</div>'; // grid
 
-    // 7. 同步日志
+    // 7. Emby 插件目录
+    if (data.emby_plugins) {
+        html += `<div class="card full-width"><h2>🔌 Emby 插件目录 ${badge(data.emby_plugins.status)}</h2>`;
+        html += `<div class="kv"><span class="key">路径:</span> <span class="val">${data.emby_plugins.plugin_dir}</span></div>`;
+        if (data.emby_plugins.status === 'ok') {
+            if (data.emby_plugins.files.length > 0) {
+                html += '<div class="kv"><span class="key">DLL 文件:</span></div>';
+                html += '<div class="file-list">';
+                data.emby_plugins.files.forEach(f => {
+                    const sizeKB = (f.size / 1024).toFixed(1);
+                    const isMetaTube = f.name.toLowerCase().includes('metatube');
+                    const color = isMetaTube ? '#22c55e' : '#e2e8f0';
+                    html += `<span style="color:${color}">📦 ${f.name} (${sizeKB} KB)</span>\n`;
+                });
+                html += '</div>';
+            } else {
+                html += `<div class="kv"><span class="val" style="color:#eab308">⚠️ plugins 目录下没有 DLL 文件</span></div>`;
+            }
+            if (data.emby_plugins.dirs.length > 0) {
+                html += '<div class="kv"><span class="key">子目录:</span></div>';
+                html += '<div class="file-list">';
+                data.emby_plugins.dirs.forEach(d => {
+                    html += `<span class="dir">📁 ${d.name}/ → [${d.contents.join(', ')}]</span>\n`;
+                });
+                html += '</div>';
+            }
+        } else {
+            html += `<div class="kv"><span class="val" style="color:#ef4444">${data.emby_plugins.message}</span></div>`;
+        }
+        html += '</div>';
+    }
+
+    // 8. Emby 插件日志
+    if (data.emby_log) {
+        html += '<div class="card full-width"><h2>📋 Emby 插件加载日志</h2>';
+        if (data.emby_log.status === 'ok') {
+            if (data.emby_log.log_file) html += `<div class="kv"><span class="key">日志文件:</span> <span class="val">${data.emby_log.log_file}</span></div>`;
+            html += `<div class="log-box">${data.emby_log.plugin_lines || '（暂无）'}</div>`;
+        } else {
+            html += `<div class="kv"><span class="val" style="color:#ef4444">${data.emby_log.message}</span></div>`;
+        }
+        html += '</div>';
+    }
+
+    // 9. 同步日志
     html += '<div class="card full-width"><h2>📋 STRM 同步日志（最近）</h2>';
     if (data.sync_log.status === 'ok') {
         html += `<div class="log-box">${data.sync_log.log || '（暂无日志）'}</div>`;
@@ -396,6 +495,8 @@ class DebugHandler(BaseHTTPRequestHandler):
                 "supervisor": check_supervisor_status(),
                 "sync_log": get_sync_log(),
                 "env": get_env_info(),
+                "emby_plugins": check_emby_plugins(),
+                "emby_log": get_emby_log(),
             }
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             page = HTML_TEMPLATE.replace("__DATA__", json.dumps(diag, ensure_ascii=False))
@@ -413,6 +514,8 @@ class DebugHandler(BaseHTTPRequestHandler):
                 "supervisor": check_supervisor_status(),
                 "sync_log": get_sync_log(),
                 "env": get_env_info(),
+                "emby_plugins": check_emby_plugins(),
+                "emby_log": get_emby_log(),
             }
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
