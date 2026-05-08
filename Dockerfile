@@ -100,7 +100,7 @@ RUN case "$TARGETARCH" in \
     esac \
     && curl -fsSL -o /tmp/deno.zip \
       "https://github.com/denoland/deno/releases/latest/download/deno-${DENO_ARCH}-unknown-linux-gnu.zip" \
-    && unzip -q /tmp/deno.zip -d /usr/local/bin/ \
+    && unzip -o -q /tmp/deno.zip -d /usr/local/bin/ \
     && chmod +x /usr/local/bin/deno \
     && rm -f /tmp/deno.zip
 
