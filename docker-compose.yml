@@ -8,6 +8,12 @@ services:
     volumes:
       - ./downloads:/downloads
       - ./config:/config
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse
+    security_opt:
+      - apparmor:unconfined
     environment:
       - TZ=-Asia/Shanghai
 
