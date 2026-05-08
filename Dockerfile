@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gpg \
   jq \
   fuse3 \
+  qbittorrent-nox \
   && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------

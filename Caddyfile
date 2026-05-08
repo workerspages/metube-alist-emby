@@ -38,4 +38,13 @@
         uri strip_prefix /debug
         reverse_proxy localhost:9090
     }
+
+    # qBittorrent Web UI
+    handle /qbittorrent/* {
+        uri strip_prefix /qbittorrent
+        reverse_proxy localhost:8082 {
+            header_up Host {host}
+            header_up X-Forwarded-Host {host}
+        }
+    }
 }

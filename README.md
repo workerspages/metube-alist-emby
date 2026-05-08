@@ -56,6 +56,7 @@ docker run -d \
 | `/` | 门户 | 导航页面 |
 | `/emby/web/` | Emby | 媒体服务器 |
 | `/metube/` | MeTube | 视频下载器 |
+| `/qbittorrent/` | qBittorrent | BT/PT 下载器 |
 | `/alist/` | Alist | 网盘管理 |
 | `/debug/` | Alist | 诊断面板 |
 
@@ -162,6 +163,7 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 |------|------|
 | [Emby](https://emby.media/) | 媒体服务器 |
 | [MeTube](https://github.com/alexta69/metube) | yt-dlp Web 下载器 |
+| [qBittorrent](https://github.com/qbittorrent/qBittorrent) | BT/PT 下载客户端 |
 | [Alist](https://github.com/AlistGo/alist) | 网盘挂载工具 |
 | [rclone](https://rclone.org/) | WebDAV → 本地文件系统挂载 |
 | [Caddy](https://caddyserver.com/) | 反向代理 |

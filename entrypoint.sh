@@ -68,5 +68,27 @@ if [ -f "$ALIST_CONFIG" ] && command -v jq &> /dev/null; then
     echo "Alist site_url set to /alist"
 fi
 
+# ------------------------------------------
+# Configure qBittorrent
+# ------------------------------------------
+QBIT_CONFIG_DIR="/config/qBittorrent/qBittorrent"
+mkdir -p "$QBIT_CONFIG_DIR"
+QBIT_CONF="$QBIT_CONFIG_DIR/qBittorrent.conf"
+
+if [ ! -f "$QBIT_CONF" ]; then
+    echo "Initializing qBittorrent default configuration..."
+    cat > "$QBIT_CONF" << EOF
+[LegalNotice]
+Accepted=true
+
+[Preferences]
+Downloads\SavePath=/downloads/
+WebUI\Port=8082
+WebUI\HostHeaderValidation=false
+WebUI\CSRFProtection=false
+WebUI\LocalHostAuth=false
+EOF
+fi
+
 echo "Starting all services via supervisord..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
