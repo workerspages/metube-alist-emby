@@ -1,4 +1,4 @@
-# MeTube + Alist + Emby All-in-One
+# MeTube + qBittorrent + Alist + Emby All-in-One
 
 [![Build and Push](https://github.com/workerspages/metube-alist-emby/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/workerspages/metube-alist-emby/actions/workflows/docker-publish.yml)
 
