@@ -80,39 +80,6 @@ docker run -d \
 | `/media/qbittorrent` | qBittorrent 下载的数据，作为 Emby 媒体源 |
 | `/config` | 所有服务配置数据 |
 
-
-#### PaaS 平台的挂载配置对应如下：
-
-```
-持久卷  →  /data
-```
-
-就这一个挂载点，无需其他配置。
-
-#### 容器内最终效果
-
-```
-/data/              ← 持久卷（真实存储）
-├── media/          ← 实际存储媒体文件
-│   ├── alist/
-│   ├── metube/
-│   └── qbittorrent/
-└── config/         ← 实际存储配置文件
-    ├── alist/
-    ├── emby/
-    └── qBittorrent/
-
-/media  →  /data/media   ← 软链接
-/config →  /data/config  ← 软链接
-```
-#### 可选环境变量
-脚本中有 `DATA_ROOT="${PERSISTENT_ROOT:-/data}"`，如果 PaaS 平台不方便挂载到 `/data`，可以通过环境变量灵活调整：
-```
-PERSISTENT_ROOT=/mnt/storage   # 挂载到其他路径时覆盖
-```
-默认不设置该变量就是 `/data`，直接用即可。
-
-
 ## 初始配置
 
 ### 1. ☁️ 配置 Alist
