@@ -31,7 +31,7 @@
   <EnableDashboardResponseCaching>true</EnableDashboardResponseCaching>
   <ImageSavingConvention>Compatible</ImageSavingConvention>
   <EnableAutomaticRestart>true</EnableAutomaticRestart>
-  <ServerName>metube-alist-emby</ServerName>
+  <ServerName>Metube-Alist-Emby</ServerName>
   <PreferredDetectedRemoteAddressFamily>InterNetwork</PreferredDetectedRemoteAddressFamily>
   <UICulture>zh-CN</UICulture>
   <RemoteClientBitrateLimit>0</RemoteClientBitrateLimit>

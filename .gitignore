@@ -13,3 +13,10 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Emby Runtime Data
+config/emby/cache/
+config/emby/logs/
+config/emby/metadata/
+*.db-shm
+*.db-wal

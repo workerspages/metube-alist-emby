@@ -8,7 +8,7 @@
   <OrderedViews />
   <LatestItemsExcludes />
   <MyMediaExcludes />
-  <HidePlayedInLatest>true</HidePlayedInLatest>
+  <HidePlayedInLatest>false</HidePlayedInLatest>
   <HidePlayedInMoreLikeThis>false</HidePlayedInMoreLikeThis>
   <HidePlayedInSuggestions>false</HidePlayedInSuggestions>
   <RememberAudioSelections>true</RememberAudioSelections>
