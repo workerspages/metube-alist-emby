@@ -80,6 +80,80 @@ docker run -d \
 | `/media/qbittorrent` | qBittorrent 下载的数据，作为 Emby 媒体源 |
 | `/config` | 所有服务配置数据 |
 
+
+<details>
+<summary>单卷映射子目录</summary>
+
+
+### 解决方案：单卷映射子目录
+
+将持久卷挂载到一个统一的父目录（如 `/data`），然后在容器内通过**软链接**将 `/media` 和 `/config` 指向该卷下的子目录。
+
+#### 方案一：修改 entrypoint.sh（推荐）
+
+在 [entrypoint.sh](https://github.com/workerspages/metube-alist-emby/blob/f28e70a2c5b453dfaf42143acc6fd954ce11a341/entrypoint.sh) 开头加入软链接初始化逻辑：
+
+```bash
+#!/bin/bash
+set -e
+
+# ==== 单卷多目录兼容逻辑 ====
+# PaaS 只挂载一个持久卷到 /data
+# 将 /media 和 /config 软链接到 /data 下的子目录
+DATA_ROOT="${PERSISTENT_ROOT:-/data}"
+
+mkdir -p "${DATA_ROOT}/media" "${DATA_ROOT}/config"
+
+# 如果 /media 不是软链接，则替换为软链接
+if [ ! -L /media ]; then
+    rm -rf /media
+    ln -s "${DATA_ROOT}/media" /media
+fi
+
+# 如果 /config 不是软链接，则替换为软链接
+if [ ! -L /config ]; then
+    rm -rf /config
+    ln -s "${DATA_ROOT}/config" /config
+fi
+# ==== 结束 ====
+
+# 原有逻辑继续...
+```
+
+PaaS 平台只需挂载 **一个持久卷到 `/data`**，`/data/media` 和 `/data/config` 自动对应原来的两个目录。
+
+#### 方案二：修改 Dockerfile，构建时预置软链接
+
+如果不方便修改运行时脚本，可在 [Dockerfile](https://github.com/workerspages/metube-alist-emby/blob/f28e70a2c5b453dfaf42143acc6fd954ce11a341/Dockerfile) 中添加：
+
+```dockerfile
+# 预置软链接（构建时）
+RUN mkdir -p /data/media /data/config \
+    && ln -sf /data/media /media \
+    && ln -sf /data/config /config
+```
+
+然后 PaaS 平台仅挂载持久卷到 `/data`。
+
+#### PaaS 配置对照
+
+| 原 docker-compose 挂载 | PaaS 单卷方案 |
+|---|---|
+| `./media:/media` | 持久卷 → `/data`，软链 `/media` → `/data/media` |
+| `./config:/config` | 持久卷 → `/data`，软链 `/config` → `/data/config` |
+
+#### 注意事项
+
+- **首次启动前**确保持久卷是空的，避免软链接被已有目录覆盖
+- 项目的 `entrypoint.sh` 中已有 `mkdir -p /media/... /config/...` 的逻辑，软链接初始化代码必须放在这些 `mkdir` 语句**之前**，否则会因目录已存在导致软链接失败
+- 环境变量 `ALIST_DATA` 默认指向 `/config/alist`，软链接生效后路径自动正确，无需额外改动
+
+
+</details>
+
+
+
+
 ## 初始配置
 
 ### 1. ☁️ 配置 Alist
