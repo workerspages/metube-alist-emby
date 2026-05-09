@@ -71,7 +71,7 @@ fi
 # ------------------------------------------
 # Initialize qBittorrent configuration
 # ------------------------------------------
-QBIT_CONFIG_DIR="/config/qBittorrent/qBittorrent"
+QBIT_CONFIG_DIR="/config/qBittorrent/qBittorrent/config"
 mkdir -p "$QBIT_CONFIG_DIR"
 
 if [ -d /opt/default-qbittorrent-config ]; then
