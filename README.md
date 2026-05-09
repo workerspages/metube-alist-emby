@@ -58,7 +58,7 @@ docker run -d \
 | `/metube/` | MeTube | 视频下载器 |
 | `/qbittorrent/` | qBittorrent | BT/PT 下载器 |
 | `/alist/` | Alist | 网盘管理 |
-| `/debug/` | Alist | 诊断面板 |
+| `/debug/` | Alist/Emby | 诊断面板 |
 
 ## 镜像来源
 
@@ -75,6 +75,8 @@ docker run -d \
 |---------|------|
 | `/media` | 媒体源根目录（包含 MeTube、qBittorrent 和 Alist 数据） |
 | `/media/alist` | Alist 网盘通过 rclone 挂载，作为 Emby 媒体源 |
+| `/media/metube` | Metube 下载的数据，作为 Emby 媒体源 |
+| `/media/qbittorrent` | qBittorrent 下载的数据，作为 Emby 媒体源 |
 | `/config` | 所有服务配置数据 |
 
 ## 初始配置
@@ -99,6 +101,10 @@ docker run -d --name media-center --privileged \
 
 访问 `/alist/` 登录，在**存储**页面添加网盘驱动。
 
+#### 默认登录信息：
+> 用户名：`admin`
+> 密码：`adminadmin`
+
 ### 2. rclone 挂载（Alist → Emby）
 
 Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接读取。
@@ -106,8 +112,9 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 ### 3. 配置 Emby
 
 访问 `/web/` 完成设置向导，添加媒体库选择：
-- `/media/metube` — MeTube 下载的视频
 - `/media/alist` — Alist 挂载的网盘文件
+- `/media/metube` — MeTube 下载的视频
+- `/media/qbittorrent` — qBittorrent 下载的视频
 
 注意：
 纯手动输入（不要在下面的列表中找目录，找不到的）
@@ -119,9 +126,17 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 插件目录：
 `/opt/emby-server/system/plugins/`
 
-### MeTube
+#### 默认登录信息：
+> 用户名：`root`
+> 密码：`空`
+
+### 4. MeTube
 
 访问 `/metube/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
+
+#### 默认登录信息：
+> 用户名：`空`
+> 密码：`空`
 
 ## 环境变量
 
@@ -137,6 +152,7 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 | `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
 | `EMBY_PROGRAMDATA` | `/config/emby` | Emby 数据目录 |
 
+
 ### MeTube 官方变量（可直接使用）
 
 | 变量 | 默认值 | 说明 |
@@ -149,6 +165,7 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 | `DARK_MODE` | `true` | 深色模式 |
 
 > 更多 MeTube 变量见 [MeTube 官方文档](https://github.com/alexta69/metube#environment-variables)
+
 
 ### 被锁定的变量（不可更改）
 
