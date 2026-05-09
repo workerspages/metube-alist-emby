@@ -134,7 +134,6 @@ RUN mkdir -p /data/media /data/config \
 ```
 
 然后 PaaS 平台仅挂载持久卷到 `/data`。
----
 
 #### PaaS 配置对照
 
@@ -151,7 +150,7 @@ RUN mkdir -p /data/media /data/config \
 
 
 </details>
-
+---
 
 
 
