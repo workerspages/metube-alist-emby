@@ -80,7 +80,7 @@ docker run -d \
 | `/media/qbittorrent` | qBittorrent 下载的数据，作为 Emby 媒体源 |
 | `/config` | 所有服务配置数据 |
 
-
+---
 <details>
 <summary>===== 单卷映射子目录 =====</summary>
 
@@ -134,6 +134,7 @@ RUN mkdir -p /data/media /data/config \
 ```
 
 然后 PaaS 平台仅挂载持久卷到 `/data`。
+---
 
 #### PaaS 配置对照
 
