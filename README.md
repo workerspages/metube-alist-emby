@@ -82,7 +82,7 @@ docker run -d \
 
 ## 初始配置
 
-### 1. 配置 Alist
+### 1. ☁️ 配置 Alist
 
 通过环境变量 `ALIST_ADMIN_PASS` 设置管理员密码（适配 PaaS 无终端环境）：
 
@@ -107,7 +107,7 @@ docker run -d --name media-center --privileged \
 > 密码：`adminadmin`
 
 
-### 2. 配置 Emby
+### 2. 📺 配置 Emby
 
 访问 `/web/` 完成设置向导，添加媒体库选择：
 - `/media/alist` — Alist 挂载的网盘文件
@@ -136,7 +136,7 @@ Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**
 > 用户名：`root`
 > 密码：`空`
 
-### 3. MeTube
+### 3. ⬇️ 配置 MeTube
 
 访问 `/metube/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
 
@@ -144,7 +144,7 @@ Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**
 > 用户名：`空`
 > 密码：`空`
 
-### 4. qBittorrent
+### 4. 🧲 配置 qBittorrent
 
 访问 `/qbittorrent/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
 
