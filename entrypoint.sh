@@ -77,7 +77,7 @@ fi
 
 
 # 每次启动自动更新 yt-dlp
-pip install -U yt-dlp --quiet || true
+pip install -U yt-dlp --quiet --root-user-action=ignore || true
 
 echo "Starting all services via supervisord..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
