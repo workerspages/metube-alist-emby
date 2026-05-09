@@ -91,7 +91,7 @@ docker run -d \
 
 #### 方案一：修改 entrypoint.sh（推荐）
 
-在 [entrypoint.sh](https://github.com/workerspages/metube-alist-emby/blob/f28e70a2c5b453dfaf42143acc6fd954ce11a341/entrypoint.sh) 开头加入软链接初始化逻辑：
+在 [entrypoint.sh](/entrypoint.sh) 开头加入软链接初始化逻辑：
 
 ```bash
 #!/bin/bash
@@ -124,7 +124,7 @@ PaaS 平台只需挂载 **一个持久卷到 `/data`**，`/data/media` 和 `/dat
 
 #### 方案二：修改 Dockerfile，构建时预置软链接
 
-如果不方便修改运行时脚本，可在 [Dockerfile](https://github.com/workerspages/metube-alist-emby/blob/f28e70a2c5b453dfaf42143acc6fd954ce11a341/Dockerfile) 中添加：
+如果不方便修改运行时脚本，可在 [Dockerfile](/Dockerfile) 中添加：
 
 ```dockerfile
 # 预置软链接（构建时）
