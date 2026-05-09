@@ -105,15 +105,11 @@ docker run -d \
 /media  →  /data/media   ← 软链接
 /config →  /data/config  ← 软链接
 ```
-
 ## 可选环境变量
-
-你的脚本中有 `DATA_ROOT="${PERSISTENT_ROOT:-/data}"`，如果 PaaS 平台不方便挂载到 `/data`，可以通过环境变量灵活调整：
-
+脚本中有 `DATA_ROOT="${PERSISTENT_ROOT:-/data}"`，如果 PaaS 平台不方便挂载到 `/data`，可以通过环境变量灵活调整：
 ```
 PERSISTENT_ROOT=/mnt/storage   # 挂载到其他路径时覆盖
 ```
-
 默认不设置该变量就是 `/data`，直接用即可。
 
 
