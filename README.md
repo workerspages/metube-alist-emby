@@ -106,11 +106,8 @@ docker run -d --name media-center --privileged \
 > 用户名：`admin`
 > 密码：`adminadmin`
 
-### 2. rclone 挂载（Alist → Emby）
 
-Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接读取。
-
-### 3. 配置 Emby
+### 2. 配置 Emby
 
 访问 `/web/` 完成设置向导，添加媒体库选择：
 - `/media/alist` — Alist 挂载的网盘文件
@@ -139,7 +136,7 @@ Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**
 > 用户名：`root`
 > 密码：`空`
 
-### 4. MeTube
+### 3. MeTube
 
 访问 `/metube/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
 
@@ -147,7 +144,7 @@ Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**
 > 用户名：`空`
 > 密码：`空`
 
-### 5. qBittorrent
+### 4. qBittorrent
 
 访问 `/qbittorrent/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
 
