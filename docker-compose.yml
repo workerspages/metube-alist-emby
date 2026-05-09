@@ -8,10 +8,6 @@ services:
     volumes:
       - ./media:/media
       - ./config:/config
-      
-      # PaaS 挂载配置 （只需挂载一个持久卷）
-      - ./data:/data
-
     environment:
       - TZ=-Asia/Shanghai
 
