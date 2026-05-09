@@ -22,7 +22,7 @@
 │   │          :8096       :8081      :5244        │
 │   └─────────────────────────────────────────┘    │
 │                                                   │
-│   共享目录: /downloads, /config                    │
+│   共享目录: /media, /config                        │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -42,7 +42,7 @@ docker compose up -d
 docker run -d \
   --name media-center \
   -p 8080:8080 \
-  -v ./downloads:/downloads \
+  -v ./media:/media \
   -v ./config:/config \
   ghcr.io/workerspages/metube-alist-emby:latest
 ```
@@ -73,7 +73,7 @@ docker run -d \
 
 | 容器路径 | 说明 |
 |---------|------|
-| `/downloads` | MeTube 下载文件，同时作为 Emby 媒体源 |
+| `/media` | 媒体源根目录（包含 MeTube、qBittorrent 和 Alist 数据） |
 | `/media/alist` | Alist 网盘通过 rclone 挂载，作为 Emby 媒体源 |
 | `/config` | 所有服务配置数据 |
 
@@ -89,7 +89,7 @@ docker run -d --name media-center --privileged \
   -e ALIST_ADMIN_PASS=your_password \
   -e ALIST_USER=admin \
   -e ALIST_PASS=your_password \
-  -v ./downloads:/downloads \
+  -v ./media:/media \
   -v ./config:/config \
   ghcr.io/workerspages/metube-alist-emby:latest
 ```
@@ -106,13 +106,13 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 ### 3. 配置 Emby
 
 访问 `/web/` 完成设置向导，添加媒体库选择：
-- `/media/metube` — MeTube 下载的视频（自动链接自 `/downloads`）
+- `/media/metube` — MeTube 下载的视频
 - `/media/alist` — Alist 挂载的网盘文件
 
 注意：
 纯手动输入（不要在下面的列表中找目录，找不到的）
 直接点击输入框。
-准确输入 /downloads 或 /media/metube（两个路径现在都是通的）。
+准确输入对应的文件夹路径，例如 `/media/metube`。
 重要：输入完毕后，仔细检查光标位置，确保结尾绝对没有哪怕一个空格！
 点击输入框右侧的放大镜（搜索）图标，或者直接点击下方的绿色“确定”按钮。
 
@@ -141,9 +141,9 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `DOWNLOAD_DIR` | `/downloads` | 下载目录 |
-| `STATE_DIR` | `/downloads/.metube` | 状态目录 |
-| `TEMP_DIR` | `/downloads` | 临时目录 |
+| `DOWNLOAD_DIR` | `/media/metube` | 下载目录 |
+| `STATE_DIR` | `/media/metube/.metube` | 状态目录 |
+| `TEMP_DIR` | `/media/metube` | 临时目录 |
 | `YTDL_OPTIONS` | `{}` | yt-dlp 选项 (JSON) |
 | `OUTPUT_TEMPLATE` | `%(title)s.%(ext)s` | 输出文件名模板 |
 | `DARK_MODE` | `true` | 深色模式 |

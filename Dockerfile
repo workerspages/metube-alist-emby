@@ -139,7 +139,7 @@ COPY config/qbittorrent /opt/default-qbittorrent-config
 RUN chmod +x /entrypoint.sh
 
 # Create data directories
-RUN mkdir -p /downloads /config/alist /config/emby /media/alist /.cache \
+RUN mkdir -p /media/metube /media/qbittorrent /config/alist /config/emby /media/alist /.cache \
   && chmod 777 /.cache
 
 # ------------------------------------------
@@ -154,9 +154,9 @@ ENV GIDLIST=0
 ENV TZ=Asia/Shanghai
 
 # MeTube defaults
-ENV DOWNLOAD_DIR=/downloads
-ENV STATE_DIR=/downloads/.metube
-ENV TEMP_DIR=/downloads
+ENV DOWNLOAD_DIR=/media/metube
+ENV STATE_DIR=/media/metube/.metube
+ENV TEMP_DIR=/media/metube
 ENV YTDL_OPTIONS="{}"
 ENV OUTPUT_TEMPLATE="%(title).100B.%(ext)s"
 ENV OUTPUT_TEMPLATE_CHAPTER="%(title)s - %(section_number)s %(section_title)s.%(ext)s"
@@ -178,7 +178,7 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-VOLUME ["/downloads", "/config"]
+VOLUME ["/media", "/config"]
 
 ENTRYPOINT ["/usr/bin/tini", "-g", "--"]
 CMD ["/entrypoint.sh"]

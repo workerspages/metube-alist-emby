@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./downloads:/downloads
+      - ./media:/media
       - ./config:/config
 
     environment:

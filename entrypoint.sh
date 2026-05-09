@@ -9,17 +9,12 @@ echo "=========================================="
 ALIST_DATA="${ALIST_DATA:-/config/alist}"
 
 # Create necessary directories
-mkdir -p /downloads/qbittorrent /media/alist \
+mkdir -p /media/metube /media/qbittorrent /media/alist \
     "${ALIST_DATA}" \
     "${EMBY_PROGRAMDATA:-/config/emby}"
 
 # Ensure media directories are accessible
-chmod 755 /downloads /downloads/qbittorrent /media /media/alist
-
-# Symlink downloads into /media so Emby's file browser can find it
-# Emby only shows standard paths like /media in its directory picker
-ln -sfn /downloads /media/metube
-ln -sfn /downloads/qbittorrent /media/qbittorrent
+chmod 755 /media /media/metube /media/qbittorrent /media/alist
 
 # ------------------------------------------
 # Initialize Emby configuration
