@@ -138,6 +138,15 @@ Alist 网盘通过 rclone WebDAV 自动挂载到 `/media/alist`，Emby 可直接
 > 用户名：`空`
 > 密码：`空`
 
+### 5. qBittorrent
+
+访问 `/qbittorrent/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
+
+#### 默认登录信息：
+> 用户名：`admin`
+> 密码：`admin`
+
+
 ## 环境变量
 
 所有 MeTube、Alist、Emby 原项目的官方环境变量均可直接通过 `docker run -e` 或 `docker-compose.yml` 传入。
