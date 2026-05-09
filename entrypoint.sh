@@ -18,7 +18,7 @@ chmod 755 /downloads /media /media/alist /media/qbittorrent
 
 # Symlink downloads into /media so Emby's file browser can find it
 # Emby only shows standard paths like /media in its directory picker
-ln -sfn /downloads /media/downloads
+ln -sfn /downloads /media/metube
 
 # ------------------------------------------
 # Initialize Emby configuration
