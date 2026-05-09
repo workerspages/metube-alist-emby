@@ -5,26 +5,6 @@ echo "=========================================="
 echo "  MeTube + Alist + Emby All-in-One"
 echo "=========================================="
 
-# ==== 单卷多目录兼容逻辑 ====
-# PaaS 只挂载一个持久卷到 /data
-# 将 /media 和 /config 软链接到 /data 下的子目录
-DATA_ROOT="${PERSISTENT_ROOT:-/data}"
-
-mkdir -p "${DATA_ROOT}/media" "${DATA_ROOT}/config"
-
-# 如果 /media 不是软链接，则替换为软链接
-if [ ! -L /media ]; then
-    rm -rf /media
-    ln -s "${DATA_ROOT}/media" /media
-fi
-
-# 如果 /config 不是软链接，则替换为软链接
-if [ ! -L /config ]; then
-    rm -rf /config
-    ln -s "${DATA_ROOT}/config" /config
-fi
-# ==== 结束 ====
-
 # Use env vars with defaults
 ALIST_DATA="${ALIST_DATA:-/config/alist}"
 
