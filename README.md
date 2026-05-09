@@ -15,12 +15,12 @@
 │   │  反向代理 │                                    │
 │   └────┬─────┘                                    │
 │        │                                          │
-│   ┌────┼──────────┬──────────┬──────────┐        │
-│   │    ▼          ▼          ▼          ▼        │
-│   │    /       /emby/*   /metube/*  /alist/*     │
-│   │  门户页    Emby       MeTube     Alist       │
-│   │          :8096       :8081      :5244        │
-│   └─────────────────────────────────────────┘    │
+│   ┌────┼──────────┬──────────┬──────────┬────────────────┐ │
+│   │    ▼          ▼          ▼          ▼                ▼ │
+│   │    /       /emby/*   /metube/*  /alist/*  /metatube-server/* │
+│   │  门户页    Emby       MeTube     Alist      MetaTube Server│
+│   │          :8096       :8081      :5244            :8083     │
+│   └────────────────────────────────────────────────────────────┘ │
 │                                                   │
 │   共享目录: /media, /config                        │
 └──────────────────────────────────────────────────┘
@@ -58,6 +58,7 @@ docker run -d \
 | `/metube/` | MeTube | 视频下载器 |
 | `/qbittorrent/` | qBittorrent | BT/PT 下载器 |
 | `/alist/` | Alist | 网盘管理 |
+| `/metatube-server/` | MetaTube Server | 刮削元数据服务器 |
 | `/debug/` | Alist/Emby | 诊断面板 |
 
 ## 镜像来源
@@ -168,6 +169,7 @@ Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**
 | `ALIST_PASS` | _(空)_ | rclone WebDAV 认证密码 |
 | `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
 | `EMBY_PROGRAMDATA` | `/config/emby` | Emby 数据目录 |
+| `METATUBE_SERVER_TOKEN` | _(空)_ | MetaTube Server 访问 Token |
 
 
 ### MeTube 官方变量（可直接使用）
@@ -199,6 +201,7 @@ Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**
 | [MeTube](https://github.com/alexta69/metube) | yt-dlp Web 下载器 |
 | [qBittorrent EE](https://github.com/c0re100/qBittorrent-Enhanced-Edition) | BT/PT 增强版下载客户端 |
 | [Alist](https://github.com/AlistGo/alist) | 网盘挂载工具 |
+| [MetaTube Server](https://github.com/metatube-community/metatube-server) | 刮削元数据服务器 |
 | [rclone](https://rclone.org/) | WebDAV → 本地文件系统挂载 |
 | [Caddy](https://caddyserver.com/) | 反向代理 |
 | [Supervisord](http://supervisord.org/) | 进程管理 |

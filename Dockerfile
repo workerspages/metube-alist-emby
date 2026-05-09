@@ -90,6 +90,18 @@ RUN case "$TARGETARCH" in \
   && rm -f /tmp/qbittorrent-ee.zip
 
 # ------------------------------------------
+# Install MetaTube Server
+# ------------------------------------------
+RUN METATUBE_SERVER_VERSION=$(curl -s https://api.github.com/repos/metatube-community/metatube-server-releases/releases/latest | jq -r '.tag_name') \
+  && echo "Installing metatube-server ${METATUBE_SERVER_VERSION} for ${TARGETARCH}" \
+  && curl -L -o /tmp/metatube-server.zip \
+  "https://github.com/metatube-community/metatube-server-releases/releases/download/${METATUBE_SERVER_VERSION}/metatube-server-linux-${TARGETARCH}.zip" \
+  && unzip -o -q /tmp/metatube-server.zip -d /usr/local/bin/ \
+  && mv /usr/local/bin/metatube-server-linux-${TARGETARCH} /usr/local/bin/metatube-server \
+  && chmod +x /usr/local/bin/metatube-server \
+  && rm -f /tmp/metatube-server.zip
+
+# ------------------------------------------
 # Copy python sync script
 # ------------------------------------------
 COPY alist-strm-sync.py /app/alist-strm-sync.py
@@ -172,6 +184,9 @@ ENV EMBY_PROGRAMDATA=/config/emby
 # Alist defaults
 ENV ALIST_DATA=/config/alist
 ENV ALIST_ADMIN_PASS=""
+
+# MetaTube Server defaults
+ENV METATUBE_SERVER_TOKEN=""
 
 # Container port
 ENV PORT=8080

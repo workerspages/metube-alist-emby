@@ -47,4 +47,10 @@
             header_up X-Forwarded-Host {host}
         }
     }
+
+    # MetaTube Server API
+    handle /metatube-server/* {
+        uri strip_prefix /metatube-server
+        reverse_proxy localhost:8083
+    }
 }
