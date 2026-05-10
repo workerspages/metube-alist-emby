@@ -102,6 +102,12 @@ RUN METATUBE_SERVER_VERSION=$(curl -s https://api.github.com/repos/metatube-comm
   && rm -f /tmp/metatube-server.zip
 
 # ------------------------------------------
+# Install rclone
+# ------------------------------------------
+RUN curl -fsSL https://rclone.org/install.sh | bash \
+  && rclone version
+
+# ------------------------------------------
 # Copy python sync script
 # ------------------------------------------
 COPY alist-strm-sync.py /app/alist-strm-sync.py
@@ -151,7 +157,7 @@ COPY config/qbittorrent /opt/default-qbittorrent-config
 RUN chmod +x /entrypoint.sh
 
 # Create data directories
-RUN mkdir -p /media/metube /media/qbittorrent /config/alist /config/emby /media/alist /.cache \
+RUN mkdir -p /media/metube /media/qbittorrent /config/alist /config/emby /media/alist /config/rclone /.cache \
   && chmod 777 /.cache
 
 # ------------------------------------------
@@ -187,6 +193,15 @@ ENV ALIST_ADMIN_PASS=""
 
 # MetaTube Server defaults
 ENV METATUBE_SERVER_TOKEN=""
+
+# rclone WebDAV defaults
+# RCLONE_WEBDAV_REMOTE: rclone remote name + path to serve, e.g. "mydrive:" or "mydrive:/media"
+# Leave empty to serve local /media directory via WebDAV
+ENV RCLONE_WEBDAV_REMOTE="/media"
+ENV RCLONE_WEBDAV_PORT=8085
+ENV RCLONE_WEBDAV_USER=""
+ENV RCLONE_WEBDAV_PASS=""
+ENV RCLONE_CONFIG=/config/rclone/rclone.conf
 
 # Container port
 ENV PORT=8080

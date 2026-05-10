@@ -53,4 +53,10 @@
         uri strip_prefix /metatube-server
         reverse_proxy localhost:8083
     }
+
+    # rclone WebDAV
+    handle /rclone/* {
+        uri strip_prefix /rclone
+        reverse_proxy localhost:8085
+    }
 }
