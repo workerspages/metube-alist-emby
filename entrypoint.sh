@@ -9,13 +9,13 @@ echo "=========================================="
 ALIST_DATA="${ALIST_DATA:-/config/alist}"
 
 # ------------------------------------------
-# 安全检查：文警默认密码
+# 安全检查：告警默认密码
 # ------------------------------------------
 if [ "${ALIST_ADMIN_PASS}" = "adminadmin" ] || [ -z "${ALIST_ADMIN_PASS}" ]; then
     echo "[WARN] ⚠️  ALIST_ADMIN_PASS 使用的是默认密码，生产环境请修改！"
 fi
 if [ "${RCLONE_WEBDAV_PASS}" = "adminadmin" ] || [ -z "${RCLONE_WEBDAV_PASS}" ]; then
-    echo "[WARN] ⚠️  RCLONE_WEBDAV_PASS 未设置或使用默认密码， WebDAV 将允许匿名访问！"
+    echo "[WARN] ⚠️  RCLONE_WEBDAV_PASS 未设置或使用默认密码，WebDAV 将允许匿名访问！"
 fi
 
 # Create necessary directories

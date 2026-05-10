@@ -7,7 +7,7 @@
 EMBY_HOST="http://localhost:8096"
 EMBY_API_KEY="${EMBY_API_KEY:-}"
 WATCH_DIR="/media"
-# 防抖延迟：最后一个文件写入后等待 N 秒再触发，避免下载中频繁触发
+# 防抖延迟：最后一个文件写入后等待 N 秒无新事件才触发
 DEBOUNCE_SECONDS=30
 
 trigger_emby_scan() {
@@ -26,15 +26,32 @@ trigger_emby_scan() {
 # 优先使用 inotifywait 实时监听
 if command -v inotifywait &>/dev/null; then
     echo "[emby-scan-watcher] 使用 inotifywait 实时监听 $WATCH_DIR"
-    LAST_TRIGGER=0
+    PENDING=0
+    LAST_EVENT=0
+
+    # 后台持续监听，将事件写入 FIFO
+    FIFO=$(mktemp -u)
+    mkfifo "$FIFO"
+    inotifywait -r -m -e close_write,moved_to,create "$WATCH_DIR" \
+        -q --format '%w%f' > "$FIFO" 2>/dev/null &
+    INOTIFY_PID=$!
+
+    # 非阻塞读取 FIFO，累积防抖
     while true; do
-        # 监听文件关闭事件（即写入完成）
-        inotifywait -r -e close_write,moved_to,create "$WATCH_DIR" -q --format '%w%f' 2>/dev/null
-        NOW=$(date +%s)
-        ELAPSED=$(( NOW - LAST_TRIGGER ))
-        if [ "$ELAPSED" -ge "$DEBOUNCE_SECONDS" ]; then
-            trigger_emby_scan
-            LAST_TRIGGER=$NOW
+        # 尝试在 1 秒内读取一行（非阻塞轮询）
+        if read -r -t 1 LINE < "$FIFO"; then
+            PENDING=1
+            LAST_EVENT=$(date +%s)
+        fi
+
+        # 如有待触发事件且已超过防抖时间，则触发
+        if [ "$PENDING" -eq 1 ]; then
+            NOW=$(date +%s)
+            ELAPSED=$(( NOW - LAST_EVENT ))
+            if [ "$ELAPSED" -ge "$DEBOUNCE_SECONDS" ]; then
+                trigger_emby_scan
+                PENDING=0
+            fi
         fi
     done
 else
