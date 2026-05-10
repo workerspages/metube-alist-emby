@@ -16,7 +16,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(me
 ALIST_BASE = "/alist"
 ALIST_URL = f"http://localhost:5244{ALIST_BASE}"
 ALIST_USER = os.environ.get("ALIST_USER", "admin")
-ALIST_PASS = os.environ.get("ALIST_PASS", "")
+# 直接复用 ALIST_ADMIN_PASS，无需额外设置 ALIST_PASS
+ALIST_PASS = os.environ.get("ALIST_ADMIN_PASS", "")
 MOUNT_POINT = "/media/alist"
 
 # 视频格式后缀
@@ -24,6 +25,7 @@ VIDEO_EXTS = {".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".ts", ".
 
 def get_token():
     if not ALIST_PASS:
+        logging.warning("ALIST_ADMIN_PASS 未设置，将以匿名身份访问 Alist（可能失败）")
         return ""
     req = urllib.request.Request(f"{ALIST_URL}/api/auth/login", method="POST")
     req.add_header("Content-Type", "application/json")
@@ -33,6 +35,8 @@ def get_token():
             res = json.loads(response.read())
             if res.get("code") == 200:
                 return res["data"]["token"]
+            else:
+                logging.error(f"Alist login failed: {res.get('message')}")
     except Exception as e:
         logging.error(f"Alist login failed: {e}")
     return ""
@@ -48,6 +52,8 @@ def list_dir(path, token):
             res = json.loads(response.read())
             if res.get("code") == 200:
                 return res["data"].get("content") or []
+            else:
+                logging.warning(f"List dir {path} returned code {res.get('code')}: {res.get('message')}")
     except Exception as e:
         logging.error(f"List dir {path} failed: {e}")
     return None
@@ -57,23 +63,24 @@ def sync():
     try:
         urllib.request.urlopen(f"{ALIST_URL}/api/public/settings", timeout=5)
     except:
-        return # Alist 未启动，稍后再试
+        return  # Alist 未启动，稍后再试
 
     token = get_token()
     valid_strm_files = set()
-    
+
     def traverse(current_path):
         content = list_dir(current_path, token)
-        if content is None: return
-        
+        if content is None:
+            return
+
         # 本地创建对应目录
         local_dir = os.path.join(MOUNT_POINT, current_path.lstrip("/"))
         os.makedirs(local_dir, exist_ok=True)
-        
+
         for item in content:
             name = item["name"]
             item_path = f"{current_path}/{name}" if current_path != "/" else f"/{name}"
-            
+
             if item["is_dir"]:
                 traverse(item_path)
             else:
@@ -81,14 +88,13 @@ def sync():
                 if ext in VIDEO_EXTS:
                     # 使用 WebDAV 路径，携带 basic auth 供 Emby 直接读取并重定向播放
                     auth_part = f"{urllib.parse.quote(ALIST_USER)}:{urllib.parse.quote(ALIST_PASS)}@" if ALIST_PASS else ""
-                    # quote 处理路径中的特殊字符或中文
                     quoted_path = urllib.parse.quote(item_path)
                     strm_url = f"http://{auth_part}127.0.0.1:5244{ALIST_BASE}/dav{quoted_path}"
-                    
+
                     strm_filename = os.path.splitext(name)[0] + ".strm"
                     strm_filepath = os.path.join(local_dir, strm_filename)
                     valid_strm_files.add(strm_filepath)
-                    
+
                     if not os.path.exists(strm_filepath):
                         try:
                             with open(strm_filepath, "w", encoding="utf-8") as f:
@@ -100,7 +106,7 @@ def sync():
     logging.info("Starting STRM sync scan...")
     traverse("/")
     logging.info("Scan complete. Cleaning up old STRM files...")
-    
+
     # 清理已不存在的文件
     for root, dirs, files in os.walk(MOUNT_POINT):
         for file in files:
@@ -113,12 +119,13 @@ def sync():
                     except Exception as e:
                         logging.error(f"Failed to remove {filepath}: {e}")
 
+
 if __name__ == "__main__":
     logging.info("Alist STRM sync service started. Waiting for Alist initialization...")
-    time.sleep(10) # 启动时等待10秒
+    time.sleep(10)  # 启动时等待10秒
     while True:
         try:
             sync()
         except Exception as e:
             logging.error(f"Sync task error: {e}")
-        time.sleep(300) # 每 5 分钟同步一次
+        time.sleep(300)  # 每 5 分钟同步一次
