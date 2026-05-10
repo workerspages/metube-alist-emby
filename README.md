@@ -59,7 +59,7 @@ docker run -d \
 | `/qbittorrent/` | qBittorrent | BT/PT 下载器 |
 | `/alist/` | Alist | 网盘管理 |
 | `/metatube-server/` | MetaTube Server | 刮削元数据服务器 |
-| `/rclone/` | rclone WebDAV | WebDAV 文件服务 |
+| `/rclone/` | rclone WebDAV | WebDAV 文件服务（默认服务 `/media`）|
 | `/debug/` | Alist/Emby | 诊断面板 |
 
 ## 镜像来源
@@ -80,7 +80,6 @@ docker run -d \
 | `/media/metube` | Metube 下载的数据，作为 Emby 媒体源 |
 | `/media/qbittorrent` | qBittorrent 下载的数据，作为 Emby 媒体源 |
 | `/config` | 所有服务配置数据 |
-| `/config/rclone` | rclone 配置文件目录（`rclone.conf`）|
 
 ---
 <details>
@@ -163,18 +162,13 @@ RUN mkdir -p /data/media /data/config \
 通过环境变量 `ALIST_ADMIN_PASS` 设置管理员密码（适配 PaaS 无终端环境）：
 
 ```bash
-docker run -d --name media-center --privileged \
+docker run -d --name media-center \
   -p 8080:8080 \
   -e ALIST_ADMIN_PASS=your_password \
-  -e ALIST_USER=admin \
-  -e ALIST_PASS=your_password \
   -v ./media:/media \
   -v ./config:/config \
   ghcr.io/workerspages/metube-alist-emby:latest
 ```
-
-> `ALIST_ADMIN_PASS` — Alist 管理员登录密码
-> `ALIST_USER` / `ALIST_PASS` — rclone WebDAV 挂载认证（通常与管理员相同）
 
 访问 `/alist/` 登录，在**存储**页面添加网盘驱动。
 
@@ -200,7 +194,7 @@ docker run -d --name media-center --privileged \
 插件目录：
 `/opt/emby-server/system/plugins/`
 
-### Emby 客户端在连接方法：
+### Emby 客户端连接方法：
 Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**。末尾的 `/web/` 是你在浏览器中访问网页端时使用的路径，客户端**不需要且不能**带上它，否则会导致 API 路径识别错误。
 1. 点击弹窗上的**"明白"**。
 2. 将**"主机"**一栏修改为（删掉后面的 `/web/`，并且确保末尾没有斜杠）：
@@ -230,36 +224,32 @@ Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**
 
 ### 5. 📂 配置 rclone WebDAV
 
-容器内置 rclone，启动时自动以 WebDAV 模式对外提供文件服务，通过 `/rclone/` 路径访问。
+rclone 在本项目中**仅作为 WebDAV 服务端**，将容器内目录通过 WebDAV 协议对外暴露，无需任何 `rclone.conf` 配置文件。
 
 #### 默认行为
 
-默认将容器内 `/media` 目录作为 WebDAV 根目录，**无需任何配置**即可访问：
+默认将容器内 `/media` 目录作为 WebDAV 根目录，开箱即用：
 
 ```
 http://localhost:8080/rclone/
 ```
 
-#### 挂载云盘 Remote
-
-如需将 rclone 云盘（如 Google Drive、OneDrive）作为 WebDAV 服务，需提前准备好 `rclone.conf`：
+#### 开启认证（推荐生产环境）
 
 ```bash
 docker run -d --name media-center \
   -p 8080:8080 \
-  -e RCLONE_WEBDAV_REMOTE="gdrive:/Movies" \
   -e RCLONE_WEBDAV_USER=myuser \
   -e RCLONE_WEBDAV_PASS=mypassword \
   -v ./media:/media \
   -v ./config:/config \
-  -v ./rclone.conf:/config/rclone/rclone.conf \
   ghcr.io/workerspages/metube-alist-emby:latest
 ```
 
 #### WebDAV 客户端连接
 
-| 客户端 | 地址示例 |
-|--------|---------|
+| 客户端 | 地址 |
+|--------|-----|
 | 浏览器 | `http://localhost:8080/rclone/` |
 | macOS Finder | `http://localhost:8080/rclone/` |
 | Windows 网络驱动器 | `http://localhost:8080/rclone/` |
@@ -275,16 +265,13 @@ docker run -d --name media-center \
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `ALIST_ADMIN_PASS` | _(空)_ | Alist 管理员密码（每次启动时设置） |
-| `ALIST_USER` | `admin` | rclone WebDAV 认证用户名 |
-| `ALIST_PASS` | _(空)_ | rclone WebDAV 认证密码 |
 | `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
 | `EMBY_PROGRAMDATA` | `/config/emby` | Emby 数据目录 |
 | `METATUBE_SERVER_TOKEN` | _(空)_ | MetaTube Server 访问 Token |
-| `RCLONE_WEBDAV_REMOTE` | `/media` | rclone WebDAV 服务的源路径或 remote，如 `gdrive:/Movies` |
+| `RCLONE_WEBDAV_REMOTE` | `/media` | WebDAV 服务的本地目录路径 |
 | `RCLONE_WEBDAV_PORT` | `8085` | rclone WebDAV 内部监听端口（Caddy 转发用） |
-| `RCLONE_WEBDAV_USER` | _(空)_ | WebDAV 认证用户名，空则不启用鉴权 |
-| `RCLONE_WEBDAV_PASS` | _(空)_ | WebDAV 认证密码，空则不启用鉴权 |
-| `RCLONE_CONFIG` | `/config/rclone/rclone.conf` | rclone 配置文件路径（持久化到 `/config` 卷）|
+| `RCLONE_WEBDAV_USER` | _(空)_ | WebDAV 认证用户名，空则匿名可访问 |
+| `RCLONE_WEBDAV_PASS` | _(空)_ | WebDAV 认证密码，空则匿名可访问 |
 
 
 ### MeTube 官方变量（可直接使用）
@@ -317,7 +304,7 @@ docker run -d --name media-center \
 | [qBittorrent EE](https://github.com/c0re100/qBittorrent-Enhanced-Edition) | BT/PT 增强版下载客户端 |
 | [Alist](https://github.com/AlistGo/alist) | 网盘挂载工具 |
 | [MetaTube Server](https://github.com/metatube-community/metatube-server) | 刮削元数据服务器 |
-| [rclone](https://rclone.org/) | WebDAV 文件服务 / 云盘挂载 |
+| [rclone](https://rclone.org/) | WebDAV 文件服务端 |
 | [Caddy](https://caddyserver.com/) | 反向代理 |
 | [Supervisord](http://supervisord.org/) | 进程管理 |
 

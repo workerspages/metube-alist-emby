@@ -8,35 +8,28 @@ services:
     volumes:
       - ./media:/media
       - ./config:/config
-      # rclone 配置文件（可选，挂载云盘 remote 时需要）
-      # - ./rclone.conf:/config/rclone/rclone.conf
     environment:
       - TZ=Asia/Shanghai
 
       # Alist 管理员密码（每次启动时设置）
       - ALIST_ADMIN_PASS=adminadmin
 
-      # rclone WebDAV 认证（去连别人 Alist 时用的账号密码）
-      - ALIST_USER=admin
-      - ALIST_PASS=adminadmin
-
       # MetaTube Server 访问 Token（可选）
       # - METATUBE_SERVER_TOKEN=your_token
 
       # -----------------------------------------------
       # rclone WebDAV 服务配置
+      # rclone 在本项目中仅作为 WebDAV 服务端使用
+      # 将容器内指定目录通过 WebDAV 协议对外暴露
+      # 访问地址：http://<host>:8080/rclone/
       # -----------------------------------------------
-      # 要通过 WebDAV 对外暴露的路径或 rclone remote
-      # 默认服务容器内 /media 目录，无需额外配置
-      # 示例（挂载云盘）：RCLONE_WEBDAV_REMOTE=gdrive:/Movies
+
+      # 对外暴露的本地目录（无需 rclone.conf）
       - RCLONE_WEBDAV_REMOTE=/media
 
       # WebDAV 内部监听端口（Caddy 转发用，通常无需修改）
       - RCLONE_WEBDAV_PORT=8085
 
-      # WebDAV 鉴权 - 别人来连 rclone 时需要提供的账号密码（留空则不启用认证）
+      # WebDAV 鉴权（留空则匿名可访问，建议生产环境设置）
       - RCLONE_WEBDAV_USER=
       - RCLONE_WEBDAV_PASS=
-
-      # rclone 配置文件路径（持久化到 /config 卷）
-      - RCLONE_CONFIG=/config/rclone/rclone.conf
