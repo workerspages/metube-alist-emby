@@ -164,7 +164,7 @@ COPY config/qbittorrent /opt/default-qbittorrent-config
 RUN chmod +x /entrypoint.sh
 
 # Create data directories
-RUN mkdir -p /media/metube /media/qbittorrent /config/alist /config/emby /media/alist /.cache \
+RUN mkdir -p /media/metube /media/qbittorrent /media/qbittorrent/movies /config/alist /config/emby /media/alist /.cache \
   && chmod 777 /.cache
 
 # ------------------------------------------
