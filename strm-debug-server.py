@@ -13,7 +13,8 @@ from datetime import datetime
 
 ALIST_URL = "http://localhost:5244/alist"
 ALIST_USER = os.environ.get("ALIST_USER", "admin")
-ALIST_PASS = os.environ.get("ALIST_PASS", "")
+# 直接复用 ALIST_ADMIN_PASS，无需额外设置 ALIST_PASS
+ALIST_PASS = os.environ.get("ALIST_ADMIN_PASS", "")
 MOUNT_POINT = "/media/alist"
 DEBUG_PORT = 9090
 
@@ -31,7 +32,7 @@ def check_alist_api():
 def check_alist_login():
     """检查 Alist 登录认证"""
     if not ALIST_PASS:
-        return {"status": "skip", "message": "ALIST_PASS 未设置，跳过登录测试"}
+        return {"status": "skip", "message": "ALIST_ADMIN_PASS 未设置，跳过登录测试"}
     try:
         req = urllib.request.Request(f"{ALIST_URL}/api/auth/login", method="POST")
         req.add_header("Content-Type", "application/json")
@@ -46,20 +47,27 @@ def check_alist_login():
         return {"status": "error", "message": str(e)}
 
 
+def get_alist_token():
+    """获取 Alist token，供内部调用使用"""
+    if not ALIST_PASS:
+        return ""
+    try:
+        req = urllib.request.Request(f"{ALIST_URL}/api/auth/login", method="POST")
+        req.add_header("Content-Type", "application/json")
+        data = json.dumps({"username": ALIST_USER, "password": ALIST_PASS}).encode()
+        with urllib.request.urlopen(req, data=data, timeout=5) as resp:
+            res = json.loads(resp.read())
+            if res.get("code") == 200:
+                return res["data"]["token"]
+    except Exception:
+        pass
+    return ""
+
+
 def check_alist_root_listing():
     """检查 Alist 根目录内容（测试存储挂载）"""
     try:
-        # 先获取 token
-        token = ""
-        if ALIST_PASS:
-            req = urllib.request.Request(f"{ALIST_URL}/api/auth/login", method="POST")
-            req.add_header("Content-Type", "application/json")
-            data = json.dumps({"username": ALIST_USER, "password": ALIST_PASS}).encode()
-            with urllib.request.urlopen(req, data=data, timeout=5) as resp:
-                res = json.loads(resp.read())
-                if res.get("code") == 200:
-                    token = res["data"]["token"]
-
+        token = get_alist_token()
         req = urllib.request.Request(f"{ALIST_URL}/api/fs/list", method="POST")
         req.add_header("Content-Type", "application/json")
         if token:
@@ -94,8 +102,7 @@ def list_local_media():
             fpath = os.path.join(rel_root, f) if rel_root else f
             if f.endswith(".strm"):
                 total_strm += 1
-                if total_strm <= 50:  # 最多显示50个
-                    # 读取 STRM 文件内容
+                if total_strm <= 50:
                     full_path = os.path.join(root, f)
                     try:
                         with open(full_path, "r") as sf:
@@ -135,8 +142,7 @@ def get_sync_log():
         if not os.path.exists(log_file):
             return {"status": "ok", "log": "（日志文件尚未创建）"}
         with open(log_file, "r", errors="replace") as f:
-            # 读取最后 5000 个字符
-            f.seek(0, 2)  # seek to end
+            f.seek(0, 2)
             size = f.tell()
             read_size = min(size, 5000)
             f.seek(max(0, size - read_size))
@@ -175,7 +181,6 @@ def get_emby_log():
     if not os.path.exists(log_dir):
         return {"status": "error", "message": f"日志目录不存在: {log_dir}"}
     try:
-        # 找最新的日志文件
         log_files = [f for f in os.listdir(log_dir) if f.endswith(".txt") or f.endswith(".log")]
         if not log_files:
             return {"status": "ok", "log": "（无日志文件）"}
@@ -187,7 +192,6 @@ def get_emby_log():
             read_size = min(size, 8000)
             f.seek(max(0, size - read_size))
             content = f.read()
-        # 过滤出插件相关日志
         plugin_lines = []
         for line in content.split("\n"):
             low = line.lower()
@@ -206,8 +210,6 @@ def get_env_info():
     env = {}
     for k in keys:
         env[k] = os.environ.get(k, "<未设置>")
-    # 脱敏显示密码
-    env["ALIST_PASS"] = "***已设置***" if os.environ.get("ALIST_PASS") else "<空>"
     env["ALIST_ADMIN_PASS"] = "***已设置***" if os.environ.get("ALIST_ADMIN_PASS") else "<空>"
     return env
 
@@ -269,7 +271,7 @@ body {
 .badge.skip { background: rgba(234,179,8,0.15); color: #eab308; }
 .badge.running { background: rgba(59,130,246,0.15); color: #3b82f6; }
 .kv { margin: 0.4rem 0; font-size: 0.85rem; }
-.kv .key { color: #64748b; min-width: 100px; display: inline-block; }
+.kv .key { color: #64748b; min-width: 120px; display: inline-block; }
 .kv .val { color: #e2e8f0; word-break: break-all; }
 .file-list {
     max-height: 300px;
@@ -521,7 +523,6 @@ class DebugHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(diag, ensure_ascii=False, indent=2).encode("utf-8"))
         elif self.path == "/api/trigger-sync":
-            # 手动触发同步
             try:
                 import subprocess
                 subprocess.Popen(["supervisorctl", "restart", "alist-strm-sync"])
