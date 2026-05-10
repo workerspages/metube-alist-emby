@@ -75,9 +75,5 @@ if [ -d /opt/default-qbittorrent-config ]; then
     cp -rn /opt/default-qbittorrent-config/* "$QBIT_CONFIG_DIR/" 2>/dev/null || true
 fi
 
-
-# 每次启动自动更新 yt-dlp
-pip install -U yt-dlp --quiet --root-user-action=ignore || true
-
 echo "Starting all services via supervisord..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
