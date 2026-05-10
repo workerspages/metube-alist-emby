@@ -11,7 +11,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
 
-      # Alist 管理员密码（账号为:admin 每次启动时设置）
+      # Alist 管理员密码（请修改默认密码）
       - ALIST_ADMIN_PASS=adminadmin
 
       # MetaTube Server 访问 Token（可选）
@@ -19,17 +19,21 @@ services:
 
       # -----------------------------------------------
       # rclone WebDAV 服务配置
-      # rclone 在本项目中仅作为 WebDAV 服务端使用
-      # 将容器内指定目录通过 WebDAV 协议对外暴露
-      # 访问地址：http://<host>:8080/rclone/
-
-      # 对外暴露的本地目录（无需 rclone.conf）
+      # -----------------------------------------------
       - RCLONE_WEBDAV_REMOTE=/media
-
-      # WebDAV 内部监听端口（Caddy 转发用，通常无需修改）
       - RCLONE_WEBDAV_PORT=8085
-
-      # WebDAV 鉴权（留空则匿名可访问，建议生产环境设置）
+      # 建议设置认证信息（留空则允许匿名访问）
       - RCLONE_WEBDAV_USER=admin
       - RCLONE_WEBDAV_PASS=adminadmin
+
+      # Emby 自动扫描配置
+      # 下载完成后通知 Emby 刷新媒体库（需要设置 Emby API Key）
+      # 在 Emby 后台 设置 -> 高级 -> API 密钒 中创建
+      - EMBY_API_KEY=
       # -----------------------------------------------
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

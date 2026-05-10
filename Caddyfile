@@ -1,7 +1,17 @@
 # Caddy 反向代理配置
 # 统一端口 :8080，通过路径分发到各服务
+# 如需开启 HTTPS，将 :8080 替换为实际域名，如： your.domain.com
 
 :8080 {
+    # 全局安全响应头
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy strict-origin-when-cross-origin
+        -Server
+    }
+
     # 门户首页
     handle / {
         root * /srv/portal
@@ -55,8 +65,11 @@
     }
 
     # rclone WebDAV
+    # 显式透传 Authorization 头，确保 Basic Auth 认证生效
     handle /rclone/* {
         uri strip_prefix /rclone
-        reverse_proxy localhost:8085
+        reverse_proxy localhost:8085 {
+            header_up Authorization {http.request.header.Authorization}
+        }
     }
 }
