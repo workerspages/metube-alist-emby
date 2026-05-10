@@ -18,6 +18,28 @@ if [ "${RCLONE_WEBDAV_PASS}" = "adminadmin" ] || [ -z "${RCLONE_WEBDAV_PASS}" ];
     echo "[WARN] ⚠️  RCLONE_WEBDAV_PASS 未设置或使用默认密码，WebDAV 将允许匿名访问！"
 fi
 
+# ------------------------------------------
+# 生成 MeTube 和 诊断面板的 bcrypt 哈希
+# 支持传入明文密码，自动转换，跟WebDAV一致
+# ------------------------------------------
+if [ -n "${METUBE_AUTH_PASS}" ]; then
+    export METUBE_AUTH_HASH=$(caddy hash-password --plaintext "${METUBE_AUTH_PASS}")
+    echo "[INFO] MeTube Basic Auth 已启用（用户名: admin）"
+elif [ -z "${METUBE_AUTH_HASH}" ]; then
+    echo "[WARN] ⚠️  METUBE_AUTH_PASS 未设置，MeTube 将无法启动（Caddy basic_auth 需要 METUBE_AUTH_HASH）"
+    echo "[WARN]    请设置环境变量 METUBE_AUTH_PASS='你的密码'"
+    exit 1
+fi
+
+if [ -n "${DEBUG_AUTH_PASS}" ]; then
+    export DEBUG_AUTH_HASH=$(caddy hash-password --plaintext "${DEBUG_AUTH_PASS}")
+    echo "[INFO] 诊断面板 Basic Auth 已启用（用户名: admin）"
+elif [ -z "${DEBUG_AUTH_HASH}" ]; then
+    echo "[WARN] ⚠️  DEBUG_AUTH_PASS 未设置，诊断面板将无法启动（Caddy basic_auth 需要 DEBUG_AUTH_HASH）"
+    echo "[WARN]    请设置环境变量 DEBUG_AUTH_PASS='你的密码'"
+    exit 1
+fi
+
 # Create necessary directories
 mkdir -p /media/metube /media/qbittorrent /media/alist \
     "${ALIST_DATA}" \
