@@ -12,6 +12,7 @@ services:
       - TZ=Asia/Shanghai
 
       # Alist 管理员密码（请修改默认密码）
+      - ALIST_USER=admin
       - ALIST_ADMIN_PASS=adminadmin
 
       # MetaTube Server 访问 Token（可选）
