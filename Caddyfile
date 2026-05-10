@@ -1,6 +1,13 @@
 # Caddy 反向代理配置
 # 统一端口 :8080，通过路径分发到各服务
 # 如需开启 HTTPS，将 :8080 替换为实际域名，如： your.domain.com
+#
+# MeTube / 诊断面板 Basic Auth 说明：
+#   用户名固定为 admin
+#   密码通过环境变量配置：
+#     METUBE_AUTH_HASH   - MeTube 的 bcrypt 密码哈希
+#     DEBUG_AUTH_HASH    - 诊断面板的 bcrypt 密码哈希
+#   生成哈希命令：caddy hash-password --plaintext '你的密码'
 
 :8080 {
     # 全局安全响应头
@@ -33,8 +40,12 @@
         reverse_proxy localhost:8096
     }
 
-    # MeTube - 不剥离前缀，MeTube 通过 URL_PREFIX 处理
+    # MeTube - Basic Auth 保护
+    # 需设置环境变量 METUBE_AUTH_HASH（bcrypt 哈希）
     handle /metube/* {
+        basic_auth {
+            admin {env.METUBE_AUTH_HASH}
+        }
         reverse_proxy localhost:8081
     }
 
@@ -43,8 +54,12 @@
         reverse_proxy localhost:5244
     }
 
-    # STRM Sync 诊断面板
+    # STRM Sync 诊断面板 - Basic Auth 保护
+    # 需设置环境变量 DEBUG_AUTH_HASH（bcrypt 哈希）
     handle /debug/* {
+        basic_auth {
+            admin {env.DEBUG_AUTH_HASH}
+        }
         uri strip_prefix /debug
         reverse_proxy localhost:9090
     }
