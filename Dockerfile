@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gpg \
   jq \
   fuse3 \
+  inotify-tools \
   && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------
@@ -115,6 +116,12 @@ COPY strm-debug-server.py /app/strm-debug-server.py
 RUN chmod +x /app/alist-strm-sync.py /app/strm-debug-server.py
 
 # ------------------------------------------
+# Copy Emby auto-scan watcher script
+# ------------------------------------------
+COPY app/emby-scan-watcher.sh /app/emby-scan-watcher.sh
+RUN chmod +x /app/emby-scan-watcher.sh
+
+# ------------------------------------------
 # Install MeTube
 # ------------------------------------------
 WORKDIR /app/metube
@@ -157,7 +164,7 @@ COPY config/qbittorrent /opt/default-qbittorrent-config
 RUN chmod +x /entrypoint.sh
 
 # Create data directories
-RUN mkdir -p /media/metube /media/qbittorrent /config/alist /config/emby /media/alist /config/rclone /.cache \
+RUN mkdir -p /media/metube /media/qbittorrent /config/alist /config/emby /media/alist /.cache \
   && chmod 777 /.cache
 
 # ------------------------------------------
@@ -186,6 +193,7 @@ ENV CLEAR_COMPLETED_AFTER=120
 
 # Emby defaults
 ENV EMBY_PROGRAMDATA=/config/emby
+ENV EMBY_API_KEY=""
 
 # Alist defaults
 ENV ALIST_DATA=/config/alist
@@ -195,13 +203,10 @@ ENV ALIST_ADMIN_PASS=""
 ENV METATUBE_SERVER_TOKEN=""
 
 # rclone WebDAV defaults
-# RCLONE_WEBDAV_REMOTE: rclone remote name + path to serve, e.g. "mydrive:" or "mydrive:/media"
-# Leave empty to serve local /media directory via WebDAV
 ENV RCLONE_WEBDAV_REMOTE="/media"
 ENV RCLONE_WEBDAV_PORT=8085
 ENV RCLONE_WEBDAV_USER=""
 ENV RCLONE_WEBDAV_PASS=""
-ENV RCLONE_CONFIG=/config/rclone/rclone.conf
 
 # Container port
 ENV PORT=8080

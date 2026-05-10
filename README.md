@@ -76,8 +76,8 @@ docker run -d \
 | 容器路径 | 说明 |
 |---------|------|
 | `/media` | 媒体源根目录（包含 MeTube、qBittorrent 和 Alist 数据） |
-| `/media/alist` | Alist 网盘通过 rclone 挂载，作为 Emby 媒体源 |
-| `/media/metube` | Metube 下载的数据，作为 Emby 媒体源 |
+| `/media/alist` | Alist 网盘挂载，作为 Emby 媒体源 |
+| `/media/metube` | MeTube 下载的数据，作为 Emby 媒体源 |
 | `/media/qbittorrent` | qBittorrent 下载的数据，作为 Emby 媒体源 |
 | `/config` | 所有服务配置数据 |
 
@@ -99,42 +99,24 @@ docker run -d \
 set -e
 
 # ==== 单卷多目录兼容逻辑 ====
-# PaaS 只挂载一个持久卷到 /data
-# 将 /media 和 /config 软链接到 /data 下的子目录
 DATA_ROOT="${PERSISTENT_ROOT:-/data}"
-
 mkdir -p "${DATA_ROOT}/media" "${DATA_ROOT}/config"
-
-# 如果 /media 不是软链接，则替换为软链接
-if [ ! -L /media ]; then
-    rm -rf /media
-    ln -s "${DATA_ROOT}/media" /media
-fi
-
-# 如果 /config 不是软链接，则替换为软链接
-if [ ! -L /config ]; then
-    rm -rf /config
-    ln -s "${DATA_ROOT}/config" /config
-fi
+if [ ! -L /media ]; then rm -rf /media && ln -s "${DATA_ROOT}/media" /media; fi
+if [ ! -L /config ]; then rm -rf /config && ln -s "${DATA_ROOT}/config" /config; fi
 # ==== 结束 ====
 
 # 原有逻辑继续...
 ```
 
-PaaS 平台只需挂载 **一个持久卷到 `/data`**，`/data/media` 和 `/data/config` 自动对应原来的两个目录。
+PaaS 平台只需挂载 **一个持久卷到 `/data`**。
 
 #### 方案二：修改 Dockerfile，构建时预置软链接
 
-如果不方便修改运行时脚本，可在 [Dockerfile](/Dockerfile) 中添加：
-
 ```dockerfile
-# 预置软链接（构建时）
 RUN mkdir -p /data/media /data/config \
     && ln -sf /data/media /media \
     && ln -sf /data/config /config
 ```
-
-然后 PaaS 平台仅挂载持久卷到 `/data`。
 
 #### PaaS 配置对照
 
@@ -143,17 +125,9 @@ RUN mkdir -p /data/media /data/config \
 | `./media:/media` | 持久卷 → `/data`，软链 `/media` → `/data/media` |
 | `./config:/config` | 持久卷 → `/data`，软链 `/config` → `/data/config` |
 
-#### 注意事项
-
-- **首次启动前**确保持久卷是空的，避免软链接被已有目录覆盖
-- 项目的 `entrypoint.sh` 中已有 `mkdir -p /media/... /config/...` 的逻辑，软链接初始化代码必须放在这些 `mkdir` 语句**之前**，否则会因目录已存在导致软链接失败
-- 环境变量 `ALIST_DATA` 默认指向 `/config/alist`，软链接生效后路径自动正确，无需额外改动
-
-
 </details>
 
 ---
-
 
 ## 初始配置
 
@@ -173,9 +147,7 @@ docker run -d --name media-center \
 访问 `/alist/` 登录，在**存储**页面添加网盘驱动。
 
 #### 默认登录信息：
-> 用户名：`admin`
-> 密码：`adminadmin`
-
+> 用户名：`admin` 密码：`adminadmin`
 
 ### 2. 📺 配置 Emby
 
@@ -184,77 +156,73 @@ docker run -d --name media-center \
 - `/media/metube` — MeTube 下载的视频
 - `/media/qbittorrent` — qBittorrent 下载的视频
 
-注意：
-纯手动输入（不要在下面的列表中找目录，找不到的）
-直接点击输入框。
-准确输入对应的文件夹路径，例如 `/media/metube`。
-重要：输入完毕后，仔细检查光标位置，确保结尾绝对没有哪怕一个空格！
-点击输入框右侧的放大镜（搜索）图标，或者直接点击下方的绿色"确定"按钮。
+注意：纯手动输入路径，不要在列表中搜索（找不到）。确保结尾没有多余空格，然后点放大镜图标或绿色"确定"按钮。
 
-插件目录：
-`/opt/emby-server/system/plugins/`
+插件目录：`/opt/emby-server/system/plugins/`
 
-### Emby 客户端连接方法：
-Emby 客户端在连接时，只需要服务器的**基础域名（Base URL）**。末尾的 `/web/` 是你在浏览器中访问网页端时使用的路径，客户端**不需要且不能**带上它，否则会导致 API 路径识别错误。
-1. 点击弹窗上的**"明白"**。
-2. 将**"主机"**一栏修改为（删掉后面的 `/web/`，并且确保末尾没有斜杠）：
-   > `https://metube-alist-emby.up.railway.app`
-3. **"端口"**一栏：因为你使用的是 `https` 开头的地址，端口通常可以**留空**（它会自动识别为 443），或者手动填入 `443`。
-
+#### Emby 客户端连接方法：
+Emby 客户端只需填入**基础域名**，不要带 `/web/` 后缀：
+> `https://your-domain.com`
 
 #### 默认登录信息：
-> 用户名：`root`
-> 密码：`空`
+> 用户名：`root` 密码：`空`
 
 ### 3. ⬇️ 配置 MeTube
 
 访问 `/metube/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
 
 #### 默认登录信息：
-> 用户名：`空`
-> 密码：`空`
+> 用户名：`空` 密码：`空`
 
 ### 4. 🧲 配置 qBittorrent
 
 访问 `/qbittorrent/`，粘贴链接下载视频，自动出现在 Emby 媒体库。
 
 #### 默认登录信息：
-> 用户名：`admin`
-> 密码：`admin`
+> 用户名：`admin` 密码：`admin`
 
 ### 5. 📂 配置 rclone WebDAV
 
-rclone 在本项目中**仅作为 WebDAV 服务端**，将容器内目录通过 WebDAV 协议对外暴露，无需任何 `rclone.conf` 配置文件。
+rclone 在本项目中**仅作为 WebDAV 服务端**，无需任何 `rclone.conf`。默认将 `/media` 对外暴露，开箱即用。
 
-#### 默认行为
+#### 开启认证（强烈建议）
 
-默认将容器内 `/media` 目录作为 WebDAV 根目录，开箱即用：
+```yaml
+- RCLONE_WEBDAV_USER=myuser
+- RCLONE_WEBDAV_PASS=mypassword
+```
+
+#### WebDAV 客户端连接地址
 
 ```
 http://localhost:8080/rclone/
 ```
 
-#### 开启认证（推荐生产环境）
+### 6. 🔄 Emby 自动扫描
 
-```bash
-docker run -d --name media-center \
-  -p 8080:8080 \
-  -e RCLONE_WEBDAV_USER=myuser \
-  -e RCLONE_WEBDAV_PASS=mypassword \
-  -v ./media:/media \
-  -v ./config:/config \
-  ghcr.io/workerspages/metube-alist-emby:latest
+容器内置 `emby-scan-watcher` 进程，利用 `inotifywait` 实时监听 `/media` 目录，当 MeTube 或 qBittorrent 下载完成时自动通知 Emby 刷新媒体库。
+
+**启用方式：**
+1. 在 Emby 后台选择 **设置 → 高级 → API 密钒** 创建一个 API Key
+2. 在环境变量中设置：
+
+```yaml
+- EMBY_API_KEY=your_api_key_here
 ```
 
-#### WebDAV 客户端连接
+**工作机制：**
+- 使用 `inotifywait` 实时监听，有 **30 秒防抖**避免下载中频繁触发
+- `EMBY_API_KEY` 为空时静默跳过，不影响其他服务
 
-| 客户端 | 地址 |
-|--------|-----|
-| 浏览器 | `http://localhost:8080/rclone/` |
-| macOS Finder | `http://localhost:8080/rclone/` |
-| Windows 网络驱动器 | `http://localhost:8080/rclone/` |
-| Infuse / nPlayer | `http://localhost:8080/rclone/` |
+## 安全建议
 
+> ⚠️ 容器启动时会检测以下安全风险并打印警告：
+
+| 风险项 | 建议 |
+|------|------|
+| `ALIST_ADMIN_PASS` 为默认密码 | 请修改为强密码 |
+| `RCLONE_WEBDAV_PASS` 未设置 | WebDAV 允许匿名访问，公网环境建议设置 |
+| 无 HTTPS | 如有域名，将 `Caddyfile` 中 `:8080` 改为实际域名即自动开启 HTTPS |
 
 ## 环境变量
 
@@ -267,12 +235,12 @@ docker run -d --name media-center \
 | `ALIST_ADMIN_PASS` | _(空)_ | Alist 管理员密码（每次启动时设置） |
 | `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
 | `EMBY_PROGRAMDATA` | `/config/emby` | Emby 数据目录 |
+| `EMBY_API_KEY` | _(空)_ | Emby API 密钒，用于自动触发媒体库扫描 |
 | `METATUBE_SERVER_TOKEN` | _(空)_ | MetaTube Server 访问 Token |
 | `RCLONE_WEBDAV_REMOTE` | `/media` | WebDAV 服务的本地目录路径 |
-| `RCLONE_WEBDAV_PORT` | `8085` | rclone WebDAV 内部监听端口（Caddy 转发用） |
+| `RCLONE_WEBDAV_PORT` | `8085` | rclone WebDAV 内部监听端口 |
 | `RCLONE_WEBDAV_USER` | _(空)_ | WebDAV 认证用户名，空则匿名可访问 |
 | `RCLONE_WEBDAV_PASS` | _(空)_ | WebDAV 认证密码，空则匿名可访问 |
-
 
 ### MeTube 官方变量（可直接使用）
 
@@ -286,7 +254,6 @@ docker run -d --name media-center \
 | `DARK_MODE` | `true` | 深色模式 |
 
 > 更多 MeTube 变量见 [MeTube 官方文档](https://github.com/alexta69/metube#environment-variables)
-
 
 ### 被锁定的变量（不可更改）
 
@@ -307,6 +274,7 @@ docker run -d --name media-center \
 | [rclone](https://rclone.org/) | WebDAV 文件服务端 |
 | [Caddy](https://caddyserver.com/) | 反向代理 |
 | [Supervisord](http://supervisord.org/) | 进程管理 |
+| [inotify-tools](https://github.com/inotify-tools/inotify-tools) | 文件系统实时监听 |
 
 ## License
 
