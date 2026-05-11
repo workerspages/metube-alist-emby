@@ -46,7 +46,7 @@ mkdir -p /media/metube /media/qbittorrent /media/movies /media/alist \
     "${EMBY_PROGRAMDATA:-/config/emby}"
 
 # Ensure media directories are accessible
-chmod 755 /media /media/metube /media/qbittorrent /media/alist
+chmod 755 /media /media/metube /media/qbittorrent /media/movies /media/alist
 
 # ------------------------------------------
 # Initialize Emby configuration
