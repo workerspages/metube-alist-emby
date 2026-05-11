@@ -41,7 +41,7 @@ elif [ -z "${DEBUG_AUTH_HASH}" ]; then
 fi
 
 # Create necessary directories
-mkdir -p /media/metube /media/qbittorrent /media/alist \
+mkdir -p /media/metube /media/qbittorrent /media/movies /media/alist \
     "${ALIST_DATA}" \
     "${EMBY_PROGRAMDATA:-/config/emby}"
 
