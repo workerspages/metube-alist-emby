@@ -189,14 +189,6 @@ http://localhost:8080/rclone/
 
 容器内置 `emby-scan-watcher`，利用 `inotifywait` 实时监听 `/media` 目录变化，下载完成后自动通知 Emby 刷新媒体库。
 
-### 7. 🔄  MetaTube Server 刷削元数据服务器
-
-容器内置 `MetaTube Server`，刷削元数据服务器。
-服务器连接地址：
-```
-http://localhost:8083
-```
-
 **启用方式：**
 1. Emby 后台 → **设置 → 高级 → API 密鑰** 创建一个 API Key
 2. 设置环境变量：
@@ -209,6 +201,14 @@ environment:
 **工作机制：**
 - 后台持续监听，最后一次文件写入后 **30 秒无新事件**才触发，避免下载过程中频繁触发
 - `EMBY_API_KEY` 为空时静默跳过，不影响其他服务
+
+### 7. 🔌  MetaTube Server 刷削元数据服务器
+
+容器内置 `MetaTube Server`，刷削元数据服务器。
+服务器连接地址：
+```
+http://localhost:8083
+```
 
 ### 8. 🛠️ 诊断面板
 
