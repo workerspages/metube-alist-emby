@@ -168,7 +168,7 @@ environment:
 ### 4. 🧺 配置 qBittorrent
 
 访问 `/qbittorrent/`，默认登录信息：
-> 用户名 `admin` 密码 `admin`
+> 用户名 `admin` 密码 `adminadmin`
 
 ### 5. 📂 配置 rclone WebDAV
 
