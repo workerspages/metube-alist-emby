@@ -152,7 +152,7 @@ RUN mkdir -p /data/media /data/config \
 Emby 客户端只需填入**基础域名**，不要带 `/web/` 后缀：
 > `https://your-domain.com`
 
-> 默认登录：用户名 `root` 密码空
+> 默认登录：用户名: `root` 密码:`空`
 
 ### 3. ⬇️ 配置 MeTube
 
@@ -160,7 +160,7 @@ MeTube 通过 Caddy **Basic Auth** 保护，通过环境变量设置密码：
 
 ```yaml
 environment:
-  - METUBE_AUTH_PASS=your_password  # 用户名固定为 admin
+  - METUBE_AUTH_PASS=your_password  # 用户名固定为: `admin`
 ```
 
 访问 `/metube/`，粘贴链接下载视频。
@@ -168,7 +168,7 @@ environment:
 ### 4. 🧺 配置 qBittorrent
 
 访问 `/qbittorrent/`，默认登录信息：
-> 用户名 `admin` 密码 `adminadmin`
+> 用户名: `admin` 密码: `adminadmin`
 
 ### 5. 📂 配置 rclone WebDAV
 
@@ -208,7 +208,7 @@ environment:
 
 ```yaml
 environment:
-  - DEBUG_AUTH_PASS=your_password  # 用户名固定为 admin
+  - DEBUG_AUTH_PASS=your_password  # 用户名固定为: `admin`
 ```
 
 访问 `/debug/` 查看 STRM 同步状态与日志。
