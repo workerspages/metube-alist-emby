@@ -191,7 +191,7 @@ http://localhost:8080/rclone/
 
 ### 7. 🔄  MetaTube Server 刷削元数据服务器
 
-容器内置 `emby-scan-watcher`，利用 `inotifywait` 实时监听 `/media` 目录变化，下载完成后自动通知 Emby 刷新媒体库。
+容器内置 `MetaTube Server`，刷削元数据服务器。
 服务器连接地址：
 ```
 http://localhost:8083
