@@ -15,8 +15,8 @@
 |     |  Proxy   |                                                                  |
 |     +----+-----+                                                                  |
 |          |                                                                        |
-|  /  /emby/*  /metube/*  /alist/*  /qbittorrent/*  /metatube-server/*  /rclone/*  |
-|  Portal  Emby   MeTube    Alist    qBittorrent      MetaTube Server    rclone    |
+|  /  /emby/*  /metube/*  /alist/*  /qbittorrent/*  /metatube-server/*  /rclone/*   |
+|  Portal  Emby   MeTube    Alist    qBittorrent      MetaTube Server    rclone     |
 |          :8096   :8081    :5244       :8082              :8083          :8085     |
 |                                                                                   |
 |     Shared Directories: /media, /config                                           |
