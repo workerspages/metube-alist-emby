@@ -147,7 +147,9 @@ RUN mkdir -p /data/media /data/config \
 
 > 注意：纯手动输入路径，不要在列表中搜索。确保结尾没有多余空格。
 
-插件目录：`/opt/emby-server/system/plugins/`
+- 插件目录：`/opt/emby-server/system/plugins/`
+- Emby 的安装目录：`/opt/emby-server`
+
 
 Emby 客户端只需填入**基础域名**，不要带 `/web/` 后缀：
 > `https://your-domain.com`
