@@ -333,11 +333,14 @@ table td { padding: 0.3rem 0.5rem; }
 .svc-btn:hover { opacity: 0.85; transform: scale(1.05); }
 .svc-btn:active { transform: scale(0.97); }
 .svc-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-.svc-btn.stop { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-.svc-btn.stop:hover { background: rgba(239,68,68,0.35); }
-.svc-btn.start { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
-.svc-btn.start:hover { background: rgba(34,197,94,0.35); }
+.svc-btn.stop { background: rgba(239,68,68,0.25); color: #fff; border: 1px solid rgba(239,68,68,0.4); }
+.svc-btn.stop:hover { background: rgba(239,68,68,0.45); }
+.svc-btn.start { background: rgba(34,197,94,0.25); color: #fff; border: 1px solid rgba(34,197,94,0.4); }
+.svc-btn.start:hover { background: rgba(34,197,94,0.45); }
+.svc-btn.restart { background: rgba(59,130,246,0.25); color: #fff; border: 1px solid rgba(59,130,246,0.4); }
+.svc-btn.restart:hover { background: rgba(59,130,246,0.45); }
 .svc-btn.loading { opacity: 0.6; cursor: wait; }
+.svc-actions { display: flex; flex-direction: column; gap: 4px; }
 .timestamp { text-align: center; color: #475569; font-size: 0.8rem; margin-top: 1rem; }
 </style>
 </head>
@@ -412,13 +415,15 @@ function render() {
         data.supervisor.services.forEach(s => {
             const isRunning = s.status === 'RUNNING';
             const isSelf = s.name === 'strm-debug';
-            let actionBtn = '';
+            let actionHtml = '<div class="svc-actions">';
             if (isRunning) {
-                actionBtn = `<button class="svc-btn stop" onclick="toggleService('${s.name}','stop')" ${isSelf ? 'disabled title="不能停止诊断面板自身"' : ''}>⏹ 停止</button>`;
+                actionHtml += `<button class="svc-btn stop" onclick="toggleService('${s.name}','stop')" ${isSelf ? 'disabled title="不能停止诊断面板自身"' : ''}>停止</button>`;
+                actionHtml += `<button class="svc-btn restart" onclick="toggleService('${s.name}','restart')">重启</button>`;
             } else {
-                actionBtn = `<button class="svc-btn start" onclick="toggleService('${s.name}','start')">▶ 启动</button>`;
+                actionHtml += `<button class="svc-btn start" onclick="toggleService('${s.name}','start')">启动</button>`;
             }
-            html += `<tr><td>${s.name}</td><td>${badge(s.status)}</td><td>${s.detail}</td><td>${actionBtn}</td></tr>`;
+            actionHtml += '</div>';
+            html += `<tr><td>${s.name}</td><td>${badge(s.status)}</td><td>${s.detail}</td><td>${actionHtml}</td></tr>`;
         });
         html += '</table>';
     } else {
@@ -606,8 +611,8 @@ class DebugHandler(BaseHTTPRequestHandler):
     }
 
     def do_POST(self):
-        if self.path in ("/api/service/stop", "/api/service/start"):
-            action = "stop" if self.path.endswith("/stop") else "start"
+        if self.path in ("/api/service/stop", "/api/service/start", "/api/service/restart"):
+            action = self.path.rsplit("/", 1)[-1]  # stop / start / restart
             try:
                 content_length = int(self.headers.get("Content-Length", 0))
                 body = json.loads(self.rfile.read(content_length)) if content_length else {}
@@ -625,7 +630,8 @@ class DebugHandler(BaseHTTPRequestHandler):
                         capture_output=True, text=True, timeout=10
                     )
                     if result.returncode == 0:
-                        resp = {"status": "ok", "message": f"{service} 已{('停止' if action == 'stop' else '启动')}"}
+                        action_name = {"stop": "停止", "start": "启动", "restart": "重启"}.get(action, action)
+                        resp = {"status": "ok", "message": f"{service} 已{action_name}"}
                     else:
                         resp = {"status": "error", "message": result.stdout.strip() or result.stderr.strip()}
             except Exception as e:
