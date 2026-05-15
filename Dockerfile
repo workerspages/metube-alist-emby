@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   jq \
   fuse3 \
   inotify-tools \
+  rsync \
   && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------
@@ -109,11 +110,12 @@ RUN curl -fsSL https://rclone.org/install.sh | bash \
   && rclone version
 
 # ------------------------------------------
-# Copy python sync script
+# Copy scripts
 # ------------------------------------------
+COPY db-sync.sh /app/db-sync.sh
 COPY alist-strm-sync.py /app/alist-strm-sync.py
 COPY strm-debug-server.py /app/strm-debug-server.py
-RUN chmod +x /app/alist-strm-sync.py /app/strm-debug-server.py
+RUN chmod +x /app/db-sync.sh /app/alist-strm-sync.py /app/strm-debug-server.py
 
 # ------------------------------------------
 # Copy Emby auto-scan watcher script
@@ -192,11 +194,11 @@ ENV ALLOW_YTDL_OPTIONS_OVERRIDES=false
 ENV CLEAR_COMPLETED_AFTER=120
 
 # Emby defaults
-ENV EMBY_PROGRAMDATA=/config/emby
+ENV EMBY_PROGRAMDATA=/app/data/emby
 ENV EMBY_API_KEY=""
 
 # Alist defaults
-ENV ALIST_DATA=/config/alist
+ENV ALIST_DATA=/app/data/alist
 ENV ALIST_ADMIN_PASS=""
 
 # MetaTube Server defaults

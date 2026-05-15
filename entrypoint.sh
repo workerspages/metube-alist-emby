@@ -6,7 +6,7 @@ echo "  MeTube + Alist + Emby All-in-One"
 echo "=========================================="
 
 # Use env vars with defaults
-ALIST_DATA="${ALIST_DATA:-/config/alist}"
+ALIST_DATA="${ALIST_DATA:-/app/data/alist}"
 
 # ------------------------------------------
 # 安全检查：告警默认密码
@@ -43,7 +43,15 @@ fi
 # Create necessary directories
 mkdir -p /media/metube /media/qbittorrent /media/movies /media/alist \
     "${ALIST_DATA}" \
-    "${EMBY_PROGRAMDATA:-/config/emby}"
+    "${EMBY_PROGRAMDATA:-/app/data/emby}" \
+    /app/data/qBittorrent/qBittorrent/config
+
+# ------------------------------------------
+# Initial DB Restore (PaaS SQLite Protection)
+# ------------------------------------------
+if [ -x /app/db-sync.sh ]; then
+    /app/db-sync.sh restore
+fi
 
 # Ensure media directories are accessible
 chmod 755 /media /media/metube /media/qbittorrent /media/movies /media/alist
@@ -97,7 +105,7 @@ fi
 # ------------------------------------------
 # Initialize qBittorrent configuration
 # ------------------------------------------
-QBIT_CONFIG_DIR="/config/qBittorrent/qBittorrent/config"
+QBIT_CONFIG_DIR="/app/data/qBittorrent/qBittorrent/config"
 mkdir -p "$QBIT_CONFIG_DIR"
 
 if [ -d /opt/default-qbittorrent-config ]; then
