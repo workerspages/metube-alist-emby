@@ -53,6 +53,30 @@ if [ -x /app/db-sync.sh ]; then
     /app/db-sync.sh restore
 fi
 
+# ------------------------------------------
+# Auto-recover corrupted SQLite databases for Emby
+# ------------------------------------------
+if command -v sqlite3 >/dev/null 2>&1; then
+    echo "[INFO] Checking Emby SQLite databases for corruption..."
+    for db in "${EMBY_PROGRAMDATA:-/app/data/emby}/data"/*.db; do
+        if [ -f "$db" ]; then
+            # Use quick_check to avoid extremely long startup times on large libraries
+            if ! sqlite3 "$db" "PRAGMA quick_check;" | grep -qi "^ok$"; then
+                echo "[WARN] ⚠️  Corruption detected in $db! Attempting recovery..."
+                # .recover extracts SQL and we pipe it to a new db
+                if sqlite3 "$db" ".recover" | sqlite3 "$db.recovered"; then
+                    mv "$db" "$db.corrupted.bak"
+                    mv "$db.recovered" "$db"
+                    echo "[INFO] ✅  Successfully recovered $db."
+                else
+                    echo "[ERROR] ❌  Failed to recover $db."
+                    rm -f "$db.recovered"
+                fi
+            fi
+        fi
+    done
+fi
+
 # Ensure media directories are accessible
 chmod 755 /media /media/metube /media/qbittorrent /media/movies /media/alist
 
