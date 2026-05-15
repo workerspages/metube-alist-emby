@@ -38,8 +38,8 @@ if [ "$1" = "restore" ]; then
     exit 0
 fi
 
-# 捕获 SIGTERM 信号，用于在容器停止时进行最后一次安全备份
-trap 'echo "[db-sync] Received SIGTERM. Performing final sync..."; sync_to_persist; exit 0' TERM INT
+# 移除 SIGTERM 的关机同步（trap），避免在 PaaS 平台强制关闭时 rsync 被 SIGKILL 中断导致持久化卷大面积损坏
+# 完全依赖 5 分钟的定时脏备份 + 启动时的 sqlite3 .recover 自动修复机制
 
 echo "[db-sync] Starting background sync loop (every 5 minutes)..."
 while true; do
