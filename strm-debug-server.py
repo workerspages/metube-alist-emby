@@ -123,8 +123,11 @@ def check_supervisor_status():
     """检查 supervisord 各服务状态"""
     try:
         import subprocess
-        out = subprocess.check_output(["supervisorctl", "status"], timeout=5, stderr=subprocess.STDOUT)
-        lines = out.decode().strip().split("\n")
+        # supervisorctl status 在有服务非 RUNNING 时返回退出码 3，属正常行为
+        proc = subprocess.run(
+            ["supervisorctl", "status"], capture_output=True, text=True, timeout=5
+        )
+        lines = proc.stdout.strip().split("\n")
         services = []
         for line in lines:
             parts = line.split()
@@ -321,26 +324,27 @@ table td { padding: 0.3rem 0.5rem; }
 }
 .refresh-btn:hover { opacity: 0.9; }
 .svc-btn {
-    padding: 3px 12px;
+    padding: 1px 6px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.78rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    transition: all 0.2s ease;
-    line-height: 1.6;
+    transition: all 0.15s ease;
+    line-height: 1.5;
+    white-space: nowrap;
 }
-.svc-btn:hover { opacity: 0.85; transform: scale(1.05); }
-.svc-btn:active { transform: scale(0.97); }
-.svc-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-.svc-btn.stop { background: rgba(239,68,68,0.25); color: #fff; border: 1px solid rgba(239,68,68,0.4); }
-.svc-btn.stop:hover { background: rgba(239,68,68,0.45); }
-.svc-btn.start { background: rgba(34,197,94,0.25); color: #fff; border: 1px solid rgba(34,197,94,0.4); }
-.svc-btn.start:hover { background: rgba(34,197,94,0.45); }
-.svc-btn.restart { background: rgba(59,130,246,0.25); color: #fff; border: 1px solid rgba(59,130,246,0.4); }
-.svc-btn.restart:hover { background: rgba(59,130,246,0.45); }
-.svc-btn.loading { opacity: 0.6; cursor: wait; }
-.svc-actions { display: flex; flex-direction: column; gap: 4px; }
+.svc-btn:hover { opacity: 0.85; }
+.svc-btn:active { transform: scale(0.95); }
+.svc-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.svc-btn.stop { background: rgba(239,68,68,0.3); color: #fca5a5; }
+.svc-btn.stop:hover { background: rgba(239,68,68,0.5); }
+.svc-btn.start { background: rgba(34,197,94,0.3); color: #86efac; }
+.svc-btn.start:hover { background: rgba(34,197,94,0.5); }
+.svc-btn.restart { background: rgba(59,130,246,0.3); color: #93c5fd; }
+.svc-btn.restart:hover { background: rgba(59,130,246,0.5); }
+.svc-btn.loading { opacity: 0.5; cursor: wait; }
+.svc-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 .timestamp { text-align: center; color: #475569; font-size: 0.8rem; margin-top: 1rem; }
 </style>
 </head>
