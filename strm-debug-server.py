@@ -320,6 +320,24 @@ table td { padding: 0.3rem 0.5rem; }
     text-decoration: none;
 }
 .refresh-btn:hover { opacity: 0.9; }
+.svc-btn {
+    padding: 3px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    line-height: 1.6;
+}
+.svc-btn:hover { opacity: 0.85; transform: scale(1.05); }
+.svc-btn:active { transform: scale(0.97); }
+.svc-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.svc-btn.stop { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.svc-btn.stop:hover { background: rgba(239,68,68,0.35); }
+.svc-btn.start { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+.svc-btn.start:hover { background: rgba(34,197,94,0.35); }
+.svc-btn.loading { opacity: 0.6; cursor: wait; }
 .timestamp { text-align: center; color: #475569; font-size: 0.8rem; margin-top: 1rem; }
 </style>
 </head>
@@ -390,9 +408,17 @@ function render() {
     // 5. 服务状态
     html += `<div class="card"><h2>🏗️ Supervisor 服务状态 ${badge(data.supervisor.status)}</h2>`;
     if (data.supervisor.status === 'ok') {
-        html += '<table><tr><th>服务</th><th>状态</th><th>详情</th></tr>';
+        html += '<table><tr><th>服务</th><th>状态</th><th>详情</th><th>操作</th></tr>';
         data.supervisor.services.forEach(s => {
-            html += `<tr><td>${s.name}</td><td>${badge(s.status)}</td><td>${s.detail}</td></tr>`;
+            const isRunning = s.status === 'RUNNING';
+            const isSelf = s.name === 'strm-debug';
+            let actionBtn = '';
+            if (isRunning) {
+                actionBtn = `<button class="svc-btn stop" onclick="toggleService('${s.name}','stop')" ${isSelf ? 'disabled title="不能停止诊断面板自身"' : ''}>⏹ 停止</button>`;
+            } else {
+                actionBtn = `<button class="svc-btn start" onclick="toggleService('${s.name}','start')">▶ 启动</button>`;
+            }
+            html += `<tr><td>${s.name}</td><td>${badge(s.status)}</td><td>${s.detail}</td><td>${actionBtn}</td></tr>`;
         });
         html += '</table>';
     } else {
@@ -480,6 +506,35 @@ function render() {
 }
 
 render();
+
+async function toggleService(name, action) {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.classList.add('loading');
+    const origText = btn.textContent;
+    btn.textContent = '⏳ 处理中…';
+    try {
+        const resp = await fetch(`/debug/api/service/${action}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({service: name})
+        });
+        const result = await resp.json();
+        if (result.status !== 'ok') {
+            alert('操作失败: ' + (result.message || '未知错误'));
+        }
+        // 刷新服务状态
+        const diagResp = await fetch('/debug/api/supervisor');
+        const diagData = await diagResp.json();
+        data.supervisor = diagData;
+        render();
+    } catch (e) {
+        alert('请求失败: ' + e.message);
+        btn.textContent = origText;
+        btn.disabled = false;
+        btn.classList.remove('loading');
+    }
+}
 </script>
 </body>
 </html>"""
@@ -522,6 +577,12 @@ class DebugHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             self.wfile.write(json.dumps(diag, ensure_ascii=False, indent=2).encode("utf-8"))
+        elif self.path == "/api/supervisor":
+            diag = check_supervisor_status()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(diag, ensure_ascii=False).encode("utf-8"))
         elif self.path == "/api/trigger-sync":
             try:
                 import subprocess
@@ -529,6 +590,47 @@ class DebugHandler(BaseHTTPRequestHandler):
                 resp = {"status": "ok", "message": "同步服务已重启"}
             except Exception as e:
                 resp = {"status": "error", "message": str(e)}
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode("utf-8"))
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    # 允许的服务白名单（与 supervisord.conf 中定义的服务名一致）
+    ALLOWED_SERVICES = {
+        "caddy", "emby", "metube", "alist", "alist-strm-sync",
+        "strm-debug", "qbittorrent", "metatube-server", "rclone-webdav",
+        "emby-scan-watcher"
+    }
+
+    def do_POST(self):
+        if self.path in ("/api/service/stop", "/api/service/start"):
+            action = "stop" if self.path.endswith("/stop") else "start"
+            try:
+                content_length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(content_length)) if content_length else {}
+                service = body.get("service", "")
+
+                # 安全校验
+                if service not in self.ALLOWED_SERVICES:
+                    resp = {"status": "error", "message": f"未知服务: {service}"}
+                elif action == "stop" and service == "strm-debug":
+                    resp = {"status": "error", "message": "不能停止诊断面板自身"}
+                else:
+                    import subprocess
+                    result = subprocess.run(
+                        ["supervisorctl", action, service],
+                        capture_output=True, text=True, timeout=10
+                    )
+                    if result.returncode == 0:
+                        resp = {"status": "ok", "message": f"{service} 已{('停止' if action == 'stop' else '启动')}"}
+                    else:
+                        resp = {"status": "error", "message": result.stdout.strip() or result.stderr.strip()}
+            except Exception as e:
+                resp = {"status": "error", "message": str(e)}
+
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
