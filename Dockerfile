@@ -196,6 +196,7 @@ ENV CLEAR_COMPLETED_AFTER=120
 
 # Emby defaults
 ENV EMBY_PROGRAMDATA=/app/data/emby
+ENV DOTNET_gcServer=0
 ENV EMBY_API_KEY=""
 
 # Alist defaults
