@@ -80,9 +80,9 @@
     }
 
     # rclone WebDAV
+    # rclone serve 使用 --baseurl /rclone，无需 strip_prefix
     # 显式透传 Authorization 头，确保 Basic Auth 认证生效
-    handle /rclone/* {
-        uri strip_prefix /rclone
+    handle /rclone* {
         reverse_proxy localhost:8085 {
             header_up Authorization {http.request.header.Authorization}
         }
