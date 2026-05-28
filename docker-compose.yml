@@ -1,7 +1,7 @@
 services:
   media-center:
     image: ghcr.io/workerspages/metube-alist-emby:latest
-    container_name: media-center
+    container_name: metube-alist-emby
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -17,6 +17,12 @@ services:
 
       # MetaTube Server 访问 Token（可选）
       # - METATUBE_SERVER_TOKEN=your_token
+
+      # MeTube Basic Auth 明文密码
+      - METUBE_AUTH_PASS=adminadmin
+
+      # 诊断面板 Basic Auth 明文密码
+      - DEBUG_AUTH_PASS=adminadmin
 
       # -----------------------------------------------
       # rclone WebDAV 服务配置
