@@ -34,7 +34,9 @@ docker compose up -d
 ```
 
 ### Docker Run
+- 带换行符的格式（适合阅读和修改参数）
 
+如果你需要在终端里修改密码或 API Key，这种带 \ 换行的格式会更清晰（直接整体复制粘贴到 Linux/macOS 终端即可执行）:
 ```bash
 docker run -d \
   --name media-center \
@@ -57,7 +59,9 @@ docker run -d \
   --health-start-period 60s \
   ghcr.io/workerspages/metube-alist-emby:latest
 ```
-#### 纯单行版本（单排格式）
+- 纯单行版本（单排格式）
+
+为了方便直接复制使用，这里提供纯单行版本（单排格式），并且默认添加了 -d 参数让其在后台运行：
 ```
 docker run -d --name media-center --restart unless-stopped -p 8080:8080 -v ./media:/media -v ./config:/config -e TZ=Asia/Shanghai -e ALIST_USER=admin -e ALIST_ADMIN_PASS=adminadmin -e RCLONE_WEBDAV_REMOTE=/media -e RCLONE_WEBDAV_PORT=8085 -e RCLONE_WEBDAV_USER=admin -e RCLONE_WEBDAV_PASS=adminadmin -e EMBY_API_KEY= --health-cmd "curl -f http://localhost:8080/" --health-interval 30s --health-timeout 10s --health-retries 3 --health-start-period 60s ghcr.io/workerspages/metube-alist-emby:latest
 ```
