@@ -103,6 +103,14 @@ if [ -d /opt/emby-plugins ]; then
 fi
 
 # ------------------------------------------
+# Initialize Alist configuration
+# ------------------------------------------
+if [ -d /opt/default-alist-config ]; then
+    echo "Initializing Alist configuration from defaults..."
+    cp -rn /opt/default-alist-config/* "${ALIST_DATA}/" 2>/dev/null || true
+fi
+
+# ------------------------------------------
 # Configure Alist
 # ------------------------------------------
 ALIST_CONFIG="${ALIST_DATA}/config.json"

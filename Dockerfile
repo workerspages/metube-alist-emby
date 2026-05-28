@@ -163,6 +163,7 @@ COPY portal /srv/portal
 COPY emby-plugin /opt/emby-plugins
 COPY config/emby /opt/default-emby-config
 COPY config/qBittorrent/config /opt/default-qbittorrent-config
+COPY config/alist /opt/default-alist-config
 
 RUN chmod +x /entrypoint.sh
 

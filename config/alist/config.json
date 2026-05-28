@@ -2,7 +2,7 @@
   "force": false,
   "site_url": "/alist",
   "cdn": "",
-  "jwt_secret": "PzJbx7HtHoLwMwaN",
+  "jwt_secret": "",
   "token_expires_in": 48,
   "database": {
     "type": "sqlite3",
