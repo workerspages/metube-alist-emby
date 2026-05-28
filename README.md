@@ -170,7 +170,7 @@ RUN mkdir -p /data/media /data/config \
 
 > `https://your-domain.com`
 
-> 默认登录：用户名: `root` 密码:`空`
+> 默认登录：用户名: `admin` 密码:`空`
 
 #### 💡 Emby 性能与防崩溃优化（PaaS 部署必看）
 在资源有限的 PaaS 平台（如 Zeabur、Koyeb、Railway）部署时，强烈建议进行以下设置，防止因内存溢出（OOM）或 CPU 占满导致容器无限重启：
