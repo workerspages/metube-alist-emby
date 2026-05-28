@@ -38,13 +38,28 @@ docker compose up -d
 ```bash
 docker run -d \
   --name media-center \
+  --restart unless-stopped \
   -p 8080:8080 \
-  -e ALIST_ADMIN_PASS=your_password \
-  -e METUBE_AUTH_PASS=your_password \
-  -e DEBUG_AUTH_PASS=your_password \
   -v ./media:/media \
   -v ./config:/config \
+  -e TZ=Asia/Shanghai \
+  -e ALIST_USER=admin \
+  -e ALIST_ADMIN_PASS=adminadmin \
+  -e RCLONE_WEBDAV_REMOTE=/media \
+  -e RCLONE_WEBDAV_PORT=8085 \
+  -e RCLONE_WEBDAV_USER=admin \
+  -e RCLONE_WEBDAV_PASS=adminadmin \
+  -e EMBY_API_KEY= \
+  --health-cmd "curl -f http://localhost:8080/" \
+  --health-interval 30s \
+  --health-timeout 10s \
+  --health-retries 3 \
+  --health-start-period 60s \
   ghcr.io/workerspages/metube-alist-emby:latest
+```
+
+```
+docker run -d --name media-center --restart unless-stopped -p 8080:8080 -v ./media:/media -v ./config:/config -e TZ=Asia/Shanghai -e ALIST_USER=admin -e ALIST_ADMIN_PASS=adminadmin -e RCLONE_WEBDAV_REMOTE=/media -e RCLONE_WEBDAV_PORT=8085 -e RCLONE_WEBDAV_USER=admin -e RCLONE_WEBDAV_PASS=adminadmin -e EMBY_API_KEY= --health-cmd "curl -f http://localhost:8080/" --health-interval 30s --health-timeout 10s --health-retries 3 --health-start-period 60s ghcr.io/workerspages/metube-alist-emby:latest
 ```
 
 ### 访问服务
