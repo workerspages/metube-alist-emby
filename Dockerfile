@@ -54,9 +54,9 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
 
 # ------------------------------------------
 # Install Emby Server
+# 锁定 4.8.11.0：StrmAssistant 社区版（免费）支持的最高版本
 # ------------------------------------------
-RUN EMBY_VERSION=$(curl -s https://api.github.com/repos/MediaBrowser/Emby.Releases/releases/latest \
-  | jq -r '.tag_name') \
+RUN EMBY_VERSION="4.8.11.0" \
   && echo "Installing Emby ${EMBY_VERSION} for ${TARGETARCH}" \
   && curl -L -o /tmp/emby.deb \
   "https://github.com/MediaBrowser/Emby.Releases/releases/download/${EMBY_VERSION}/emby-server-deb_${EMBY_VERSION}_${TARGETARCH}.deb" \
