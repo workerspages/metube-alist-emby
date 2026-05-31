@@ -115,7 +115,8 @@ RUN curl -fsSL https://rclone.org/install.sh | bash \
 COPY db-sync.sh /app/db-sync.sh
 COPY alist-strm-sync.py /app/alist-strm-sync.py
 COPY strm-debug-server.py /app/strm-debug-server.py
-RUN chmod +x /app/db-sync.sh /app/alist-strm-sync.py /app/strm-debug-server.py
+COPY strm-thumb-gen.py /app/strm-thumb-gen.py
+RUN chmod +x /app/db-sync.sh /app/alist-strm-sync.py /app/strm-debug-server.py /app/strm-thumb-gen.py
 
 # ------------------------------------------
 # Copy Emby auto-scan watcher script

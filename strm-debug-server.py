@@ -92,6 +92,7 @@ def list_local_media():
         return {"status": "error", "message": f"{MOUNT_POINT} 不存在"}
 
     total_strm = 0
+    total_thumbs = 0
     for root, dirs, files in os.walk(MOUNT_POINT):
         rel_root = os.path.relpath(root, MOUNT_POINT)
         if rel_root == ".":
@@ -109,11 +110,17 @@ def list_local_media():
                             content = sf.read().strip()
                     except:
                         content = "<读取失败>"
-                    result["strm_files"].append({"path": fpath, "url": content})
+                    # 检查是否有对应的缩略图
+                    thumb_name = os.path.splitext(f)[0] + "-thumb.jpg"
+                    has_thumb = os.path.exists(os.path.join(root, thumb_name))
+                    result["strm_files"].append({"path": fpath, "url": content, "has_thumb": has_thumb})
+            elif f.endswith("-thumb.jpg"):
+                total_thumbs += 1
             else:
                 result["other_files"].append(fpath)
 
     result["total_strm_count"] = total_strm
+    result["total_thumb_count"] = total_thumbs
     result["total_dirs"] = len(result["dirs"])
     result["status"] = "ok"
     return result
@@ -141,6 +148,23 @@ def check_supervisor_status():
 def get_sync_log():
     """读取 STRM 同步的最近日志"""
     log_file = "/var/log/alist-strm-sync.log"
+    try:
+        if not os.path.exists(log_file):
+            return {"status": "ok", "log": "（日志文件尚未创建）"}
+        with open(log_file, "r", errors="replace") as f:
+            f.seek(0, 2)
+            size = f.tell()
+            read_size = min(size, 5000)
+            f.seek(max(0, size - read_size))
+            content = f.read()
+        return {"status": "ok", "log": content or "（日志为空）"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+def get_thumb_log():
+    """读取 ffmpeg 截图服务的最近日志"""
+    log_file = "/var/log/strm-thumb-gen.log"
     try:
         if not os.path.exists(log_file):
             return {"status": "ok", "log": "（日志文件尚未创建）"}
@@ -439,6 +463,7 @@ function render() {
     html += `<div class="card"><h2>💾 /media/alist 目录 ${badge(data.local_media.status)}</h2>`;
     if (data.local_media.status === 'ok') {
         html += `<div class="kv"><span class="key">STRM 文件:</span> <span class="val">${data.local_media.total_strm_count} 个</span></div>`;
+        html += `<div class="kv"><span class="key">缩略图:</span> <span class="val">${data.local_media.total_thumb_count || 0} 个</span></div>`;
         html += `<div class="kv"><span class="key">目录:</span> <span class="val">${data.local_media.total_dirs} 个</span></div>`;
         if (data.local_media.total_strm_count === 0 && data.local_media.total_dirs === 0) {
             html += `<div class="kv"><span class="val" style="color:#eab308">⚠️ 目录为空！STRM 同步可能还未执行或 Alist 中无视频文件</span></div>`;
@@ -447,7 +472,8 @@ function render() {
             html += '<div class="file-list">';
             data.local_media.dirs.forEach(d => { html += `<span class="dir">📁 ${d}</span>\\n`; });
             data.local_media.strm_files.forEach(f => {
-                html += `<span class="strm">📺 ${f.path}</span><span class="url">→ ${f.url}</span>`;
+                const thumbIcon = f.has_thumb ? '🖼️' : '⬜';
+                html += `<span class="strm">${thumbIcon} 📺 ${f.path}</span><span class="url">→ ${f.url}</span>`;
             });
             html += '</div>';
         }
@@ -469,8 +495,7 @@ function render() {
                 data.emby_plugins.files.forEach(f => {
                     const sizeKB = (f.size / 1024).toFixed(1);
                     const isMetaTube = f.name.toLowerCase().includes('metatube');
-                    const isStrmAssistant = f.name.toLowerCase().includes('strmassistant');
-                    const color = (isMetaTube || isStrmAssistant) ? '#22c55e' : '#e2e8f0';
+                    const color = isMetaTube ? '#22c55e' : '#e2e8f0';
                     html += `<span style="color:${color}">📦 ${f.name} (${sizeKB} KB)</span>\n`;
                 });
                 html += '</div>';
@@ -511,6 +536,17 @@ function render() {
         html += `<div class="kv"><span class="val" style="color:#ef4444">${data.sync_log.message}</span></div>`;
     }
     html += '</div>';
+
+    // 10. ffmpeg 截图日志
+    if (data.thumb_log) {
+        html += '<div class="card full-width"><h2>🖼️ ffmpeg 截图日志（最近）</h2>';
+        if (data.thumb_log.status === 'ok') {
+            html += `<div class="log-box">${data.thumb_log.log || '（暂无日志）'}</div>`;
+        } else {
+            html += `<div class="kv"><span class="val" style="color:#ef4444">${data.thumb_log.message}</span></div>`;
+        }
+        html += '</div>';
+    }
 
     document.getElementById('content').innerHTML = html;
 }
@@ -566,6 +602,7 @@ class DebugHandler(BaseHTTPRequestHandler):
                 "local_media": list_local_media(),
                 "supervisor": check_supervisor_status(),
                 "sync_log": get_sync_log(),
+                "thumb_log": get_thumb_log(),
                 "env": get_env_info(),
                 "emby_plugins": check_emby_plugins(),
                 "emby_log": get_emby_log(),
@@ -587,6 +624,7 @@ class DebugHandler(BaseHTTPRequestHandler):
                 "local_media": list_local_media(),
                 "supervisor": check_supervisor_status(),
                 "sync_log": get_sync_log(),
+                "thumb_log": get_thumb_log(),
                 "env": get_env_info(),
                 "emby_plugins": check_emby_plugins(),
                 "emby_log": get_emby_log(),
@@ -619,8 +657,8 @@ class DebugHandler(BaseHTTPRequestHandler):
     # 允许的服务白名单（与 supervisord.conf 中定义的服务名一致）
     ALLOWED_SERVICES = {
         "caddy", "emby", "metube", "alist", "alist-mount", "alist-strm-sync",
-        "strm-debug", "qbittorrent", "metatube-server", "rclone-webdav",
-        "emby-scan-watcher"
+        "strm-thumb-gen", "strm-debug", "qbittorrent", "metatube-server",
+        "rclone-webdav", "emby-scan-watcher"
     }
 
     def do_POST(self):

@@ -21,3 +21,4 @@ config/emby/cache/
 config/emby/data/
 config/emby/logs/
 config/qBittorrent/config/config/
+__pycache__/

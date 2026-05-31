@@ -171,16 +171,17 @@ RUN mkdir -p /data/media /data/config \
 | 插件 | 用途 |
 |------|------|
 | [MetaTube](https://github.com/metatube-community/metatube-sdk-go) | 刷削元数据 |
-| [StrmAssistant](https://github.com/sjtuross/StrmAssistant) | 为 `.strm` 文件启用视频截图（Image Capture）（免费社区版，strm 模式下使用） |
+
+> `.strm` 模式下的视频封面由容器内置的 **ffmpeg 截图服务**自动生成，无需任何 Emby 插件，不受 Emby 版本限制。
 
 #### 🔀 Alist 挂载模式（自动切换）
 
 容器支持两种模式访问 Alist 网盘文件，**启动时自动检测**：
 
-| 模式 | 触发条件 | 原理 | Image Capture | 适用场景 |
-|------|---------|------|--------------|---------|
-| **mount** | `/dev/fuse` 存在 | rclone FUSE 挂载 Alist WebDAV 到 `/media/alist` | ✅ Emby 原生支持 | 本地 Docker / VPS |
-| **strm** | 无 FUSE 支持 | 生成 `.strm` 文件 + StrmAssistant 插件 | ✅ 插件辅助 | PaaS 平台 |
+| 模式 | 触发条件 | 原理 | 视频封面 | 适用场景 |
+|------|---------|------|---------|---------|
+| **mount** | `/dev/fuse` 存在 | rclone FUSE 挂载 Alist WebDAV 到 `/media/alist` | ✅ Emby 原生 Image Capture | 本地 Docker / VPS |
+| **strm** | 无 FUSE 支持 | 生成 `.strm` 文件 + ffmpeg 自动截图 | ✅ ffmpeg 截取画面（无插件依赖） | PaaS 平台 |
 
 通过环境变量 `ALIST_MOUNT_MODE` 可手动覆盖：`auto`（默认）/ `mount` / `strm`
 
@@ -337,7 +338,7 @@ environment:
 | [qBittorrent EE](https://github.com/c0re100/qBittorrent-Enhanced-Edition) | BT/PT 增强版下载客户端 |
 | [Alist](https://github.com/AlistGo/alist) | 网盘挂载工具 |
 | [MetaTube Server](https://github.com/metatube-community/metatube-server) | 刷削元数据服务器 |
-| [StrmAssistant](https://github.com/sjtuross/StrmAssistant) | .strm 视频截图/缩略图/媒体信息增强插件（社区版） |
+| [ffmpeg](https://ffmpeg.org/) | .strm 模式下自动截取视频画面作为封面（替代 StrmAssistant 插件，无 Emby 版本限制） |
 | [rclone](https://rclone.org/) | WebDAV 文件服务端 |
 | [Caddy](https://caddyserver.com/) | 反向代理 + Basic Auth |
 | [Supervisord](http://supervisord.org/) | 进程管理 |
