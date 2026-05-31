@@ -111,16 +111,15 @@ RUN curl -fsSL https://rclone.org/install.sh | bash \
   && rclone version
 
 # ------------------------------------------
-# Install StrmAssistantPro Plugin for Emby
+# Install StrmAssistant Plugin for Emby
 # Enables Image Capture / video thumbnails for .strm files
-# Supports Emby 4.8.5.0 - 4.9.5.0
 # ------------------------------------------
-RUN STRM_ASSISTANT_VERSION=$(curl -s https://api.github.com/repos/sjtuross/StrmAssistant.Releases/releases/latest | jq -r '.tag_name') \
-  && echo "Installing StrmAssistantPro ${STRM_ASSISTANT_VERSION}" \
+RUN STRM_ASSISTANT_VERSION=$(curl -s https://api.github.com/repos/sjtuross/StrmAssistant/releases/latest | jq -r '.tag_name') \
+  && echo "Installing StrmAssistant ${STRM_ASSISTANT_VERSION}" \
   && mkdir -p /tmp/emby-plugins \
-  && curl -L -o /tmp/emby-plugins/StrmAssistantPro.dll \
-  "https://github.com/sjtuross/StrmAssistant.Releases/releases/download/${STRM_ASSISTANT_VERSION}/StrmAssistantPro.dll" \
-  && echo "StrmAssistantPro.dll downloaded: $(du -h /tmp/emby-plugins/StrmAssistantPro.dll | cut -f1)"
+  && curl -L -o /tmp/emby-plugins/StrmAssistant.dll \
+  "https://github.com/sjtuross/StrmAssistant/releases/download/${STRM_ASSISTANT_VERSION}/StrmAssistant.dll" \
+  && echo "StrmAssistant.dll downloaded: $(du -h /tmp/emby-plugins/StrmAssistant.dll | cut -f1)"
 
 # ------------------------------------------
 # Copy scripts

@@ -171,9 +171,9 @@ RUN mkdir -p /data/media /data/config \
 | 插件 | 用途 |
 |------|------|
 | [MetaTube](https://github.com/metatube-community/metatube-sdk-go) | 刷削元数据 |
-| [StrmAssistantPro](https://github.com/sjtuross/StrmAssistant.Releases) | 为 `.strm` 文件启用视频截图（Image Capture）、预览缩略图、媒体信息提取等增强功能（支持 Emby 4.8.5-4.9.5） |
+| [StrmAssistant](https://github.com/sjtuross/StrmAssistant) | 为 `.strm` 文件启用视频截图（Image Capture）、预览缩略图、媒体信息提取等增强功能 |
 
-> **📸 StrmAssistantPro 配置要点：** 容器已内置 StrmAssistantPro 插件，启动后在 Emby 插件页面即可看到。请确保媒体库高级选项中 **"Image Capture" 已开启**，StrmAssistantPro 会自动接管 `.strm` 文件的截图生成。如遇截图超时，可在 `system.xml` 中调大 `ImageExtractionTimeoutMs`（默认已设为 30 秒）。
+> **📸 StrmAssistant 配置要点：** 容器已内置 StrmAssistant 插件，启动后在 Emby 插件页面即可看到。请确保媒体库高级选项中 **"Image Capture" 已开启**，StrmAssistant 会自动接管 `.strm` 文件的截图生成。如遇截图超时，可在 `system.xml` 中调大 `ImageExtractionTimeoutMs`（默认已设为 30 秒）。
 
 > `https://your-domain.com`
 
@@ -325,7 +325,7 @@ environment:
 | [qBittorrent EE](https://github.com/c0re100/qBittorrent-Enhanced-Edition) | BT/PT 增强版下载客户端 |
 | [Alist](https://github.com/AlistGo/alist) | 网盘挂载工具 |
 | [MetaTube Server](https://github.com/metatube-community/metatube-server) | 刷削元数据服务器 |
-| [StrmAssistantPro](https://github.com/sjtuross/StrmAssistant.Releases) | .strm 视频截图/缩略图/媒体信息增强插件 |
+| [StrmAssistant](https://github.com/sjtuross/StrmAssistant) | .strm 视频截图/缩略图/媒体信息增强插件 |
 | [rclone](https://rclone.org/) | WebDAV 文件服务端 |
 | [Caddy](https://caddyserver.com/) | 反向代理 + Basic Auth |
 | [Supervisord](http://supervisord.org/) | 进程管理 |
