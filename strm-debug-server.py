@@ -551,6 +551,12 @@ async function toggleService(name, action) {
 
 
 class DebugHandler(BaseHTTPRequestHandler):
+    def handle(self):
+        try:
+            super().handle()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
     def do_GET(self):
         if self.path == "/" or self.path.startswith("/?"):
             diag = {

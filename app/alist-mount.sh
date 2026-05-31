@@ -38,6 +38,7 @@ RCLONE_ARGS=(
     "--webdav-url" "http://localhost:5244/alist/dav"
     "--webdav-user" "${ALIST_USER:-admin}"
     "--allow-other"
+    "--allow-non-empty"
     "--vfs-cache-mode" "minimal"
     "--vfs-read-chunk-size" "32M"
     "--vfs-read-chunk-size-limit" "256M"
