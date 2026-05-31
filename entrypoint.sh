@@ -143,7 +143,7 @@ fi
 # Set admin password via environment variable (for PaaS without terminal)
 if [ -n "${ALIST_ADMIN_PASS}" ]; then
     echo "Setting Alist admin password from environment variable..."
-    /usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" 2>/dev/null || true
+    /usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" || echo "[WARN] Failed to set Alist admin password."
 fi
 
 # Set Alist site_url for subpath routing
