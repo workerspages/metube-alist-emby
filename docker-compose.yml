@@ -28,16 +28,16 @@ services:
 
       # Alist 管理员密码（请修改默认密码）
       - ALIST_USER=admin
-      - ALIST_ADMIN_PASS=changeme
+      - ALIST_ADMIN_PASS=adminadmin
 
       # MetaTube Server 访问 Token（可选）
       # - METATUBE_SERVER_TOKEN=your_token
 
       # MeTube Basic Auth 明文密码
-      - METUBE_AUTH_PASS=changeme
+      - METUBE_AUTH_PASS=adminadmin
 
       # 诊断面板 Basic Auth 明文密码
-      - DEBUG_AUTH_PASS=changeme
+      - DEBUG_AUTH_PASS=adminadmin
 
       # -----------------------------------------------
       # rclone WebDAV 服务配置
@@ -46,7 +46,7 @@ services:
       - RCLONE_WEBDAV_PORT=8085
       # 建议设置认证信息（留空则允许匿名访问）
       - RCLONE_WEBDAV_USER=admin
-      - RCLONE_WEBDAV_PASS=changeme
+      - RCLONE_WEBDAV_PASS=adminadmin
 
       # Emby 自动扫描配置
       # 下载完成后通知 Emby 刷新媒体库（需要设置 Emby API Key）
