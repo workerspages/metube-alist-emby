@@ -44,7 +44,7 @@
   <IsBehindProxy>false</IsBehindProxy>
   <RemoteIPFilter />
   <IsRemoteIPFilterBlacklist>false</IsRemoteIPFilterBlacklist>
-  <ImageExtractionTimeoutMs>0</ImageExtractionTimeoutMs>
+  <ImageExtractionTimeoutMs>30000</ImageExtractionTimeoutMs>
   <PathSubstitutions />
   <UninstalledPlugins />
   <CollapseVideoFolders>false</CollapseVideoFolders>
