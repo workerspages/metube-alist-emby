@@ -42,6 +42,8 @@ fi
 # 完全依赖 5 分钟的定时脏备份 + 启动时的 sqlite3 .recover 自动修复机制
 
 echo "[db-sync] Starting background sync loop (every 5 minutes)..."
+# 启动后先立即执行一次同步，防止 5 分钟内崩溃丢失数据
+sleep 60 && sync_to_persist
 while true; do
     # 使用后台 sleep 并 wait，以便 trap 能立即响应中断信号
     sleep 300 & wait $!

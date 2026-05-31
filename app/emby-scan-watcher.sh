@@ -10,6 +10,14 @@ WATCH_DIR="/media"
 # 防抖延迟：最后一个文件写入后等待 N 秒无新事件才触发
 DEBOUNCE_SECONDS=30
 
+# 如果 EMBY_API_KEY 未设置，不启动监听（避免浪费资源）
+if [ -z "$EMBY_API_KEY" ]; then
+    echo "[emby-scan-watcher] EMBY_API_KEY 未设置，自动扫描已禁用。"
+    echo "[emby-scan-watcher] 如需启用，请在环境变量中设置 EMBY_API_KEY。"
+    # 保持进程存活但不做任何事，防止 supervisord 无限重启
+    exec sleep infinity
+fi
+
 trigger_emby_scan() {
     if [ -z "$EMBY_API_KEY" ]; then
         echo "[emby-scan-watcher] EMBY_API_KEY 未设置，跳过自动扫描"
@@ -35,6 +43,14 @@ if command -v inotifywait &>/dev/null; then
     inotifywait -r -m -e close_write,moved_to,create "$WATCH_DIR" \
         -q --format '%w%f' > "$FIFO" 2>/dev/null &
     INOTIFY_PID=$!
+
+    # 清理 FIFO 和后台进程
+    cleanup() {
+        kill "$INOTIFY_PID" 2>/dev/null
+        rm -f "$FIFO"
+        exit 0
+    }
+    trap cleanup EXIT TERM INT
 
     # 非阻塞读取 FIFO，累积防抖
     while true; do

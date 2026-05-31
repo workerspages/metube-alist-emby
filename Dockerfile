@@ -202,6 +202,7 @@ ENV EMBY_API_KEY=""
 
 # Alist defaults
 ENV ALIST_DATA=/app/data/alist
+ENV ALIST_USER=admin
 ENV ALIST_ADMIN_PASS=""
 
 # MetaTube Server defaults

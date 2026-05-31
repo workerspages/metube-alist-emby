@@ -198,7 +198,7 @@ def get_emby_log():
         plugin_lines = []
         for line in content.split("\n"):
             low = line.lower()
-            if "plugin" in low or "metatube" in low or "assembly" in low or "loaded" in low:
+            if "plugin" in low or "metatube" in low or "strmassistant" in low or "assembly" in low or "loaded" in low:
                 plugin_lines.append(line)
         return {"status": "ok", "log_file": log_files[0],
                 "plugin_lines": "\n".join(plugin_lines[-30:]) if plugin_lines else "（未找到插件相关日志）",
@@ -565,7 +565,9 @@ class DebugHandler(BaseHTTPRequestHandler):
                 "emby_log": get_emby_log(),
             }
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            page = HTML_TEMPLATE.replace("__DATA__", json.dumps(diag, ensure_ascii=False))
+            # 防 XSS：转义 JSON 中的 < 字符，防止 </script> 注入
+            safe_json = json.dumps(diag, ensure_ascii=False).replace("<", "\\u003c")
+            page = HTML_TEMPLATE.replace("__DATA__", safe_json)
             page = page.replace("__TIMESTAMP__", ts)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")

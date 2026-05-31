@@ -46,7 +46,7 @@ def list_dir(path, token):
     req.add_header("Content-Type", "application/json")
     if token:
         req.add_header("Authorization", token)
-    data = json.dumps({"path": path, "password": "", "page": 1, "per_page": 0, "refresh": False}).encode("utf-8")
+    data = json.dumps({"path": path, "password": "", "page": 1, "per_page": 10000, "refresh": False}).encode("utf-8")
     try:
         with urllib.request.urlopen(req, data=data) as response:
             res = json.loads(response.read())
@@ -118,6 +118,17 @@ def sync():
                         logging.info(f"Removed old STRM: {filepath}")
                     except Exception as e:
                         logging.error(f"Failed to remove {filepath}: {e}")
+
+    # 清理空目录（自底向上）
+    for root, dirs, files in os.walk(MOUNT_POINT, topdown=False):
+        if root == MOUNT_POINT:
+            continue
+        if not os.listdir(root):
+            try:
+                os.rmdir(root)
+                logging.info(f"Removed empty dir: {root}")
+            except Exception as e:
+                logging.error(f"Failed to remove dir {root}: {e}")
 
 
 if __name__ == "__main__":

@@ -41,7 +41,7 @@
   <LocalNetworkAddresses />
   <EnableExternalContentInSuggestions>false</EnableExternalContentInSuggestions>
   <RequireHttps>false</RequireHttps>
-  <IsBehindProxy>false</IsBehindProxy>
+  <IsBehindProxy>true</IsBehindProxy>
   <RemoteIPFilter />
   <IsRemoteIPFilterBlacklist>false</IsRemoteIPFilterBlacklist>
   <ImageExtractionTimeoutMs>30000</ImageExtractionTimeoutMs>

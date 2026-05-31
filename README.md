@@ -153,7 +153,7 @@ RUN mkdir -p /data/media /data/config \
 
 访问 `/alist/` 登录，在**存储**页面添加网盘驱动。
 
-> 默认登录：用户名: `admin` 密码: `adminadmin`（如设置了变量以变量设置的密码不准）
+> 默认登录：用户名: `admin` 密码: 通过环境变量 `ALIST_ADMIN_PASS` 设置（docker-compose.yml 中默认为 `changeme`，**请务必修改**）
 
 ### 2. 📺 配置 Emby
 

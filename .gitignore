@@ -14,3 +14,10 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Config 目录中的运行时数据（不应提交）
+config/alist/data.db*
+config/alist/log/
+config/emby/cache/
+config/emby/data/
+config/emby/logs/
+config/qBittorrent/config/config/
