@@ -469,8 +469,7 @@ function render() {
                 data.emby_plugins.files.forEach(f => {
                     const sizeKB = (f.size / 1024).toFixed(1);
                     const isMetaTube = f.name.toLowerCase().includes('metatube');
-                    const isStrmAssistant = f.name.toLowerCase().includes('strmassistant');
-                    const color = (isMetaTube || isStrmAssistant) ? '#22c55e' : '#e2e8f0';
+                    const color = isMetaTube ? '#22c55e' : '#e2e8f0';
                     html += `<span style="color:${color}">📦 ${f.name} (${sizeKB} KB)</span>\n`;
                 });
                 html += '</div>';

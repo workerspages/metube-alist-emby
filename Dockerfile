@@ -111,17 +111,6 @@ RUN curl -fsSL https://rclone.org/install.sh | bash \
   && rclone version
 
 # ------------------------------------------
-# Install StrmAssistant Plugin for Emby
-# Enables Image Capture / video thumbnails for .strm files
-# ------------------------------------------
-RUN STRM_ASSISTANT_VERSION=$(curl -s https://api.github.com/repos/sjtuross/StrmAssistant/releases/latest | jq -r '.tag_name') \
-  && echo "Installing StrmAssistant ${STRM_ASSISTANT_VERSION}" \
-  && mkdir -p /tmp/emby-plugins \
-  && curl -L -o /tmp/emby-plugins/StrmAssistant.dll \
-  "https://github.com/sjtuross/StrmAssistant/releases/download/${STRM_ASSISTANT_VERSION}/StrmAssistant.dll" \
-  && echo "StrmAssistant.dll downloaded: $(du -h /tmp/emby-plugins/StrmAssistant.dll | cut -f1)"
-
-# ------------------------------------------
 # Copy scripts
 # ------------------------------------------
 COPY db-sync.sh /app/db-sync.sh
@@ -172,8 +161,6 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY entrypoint.sh /entrypoint.sh
 COPY portal /srv/portal
 COPY emby-plugin /opt/emby-plugins
-# Merge build-time downloaded plugins (StrmAssistant) into the same directory
-RUN cp /tmp/emby-plugins/*.dll /opt/emby-plugins/ 2>/dev/null; rm -rf /tmp/emby-plugins
 COPY config/emby /opt/default-emby-config
 COPY config/qBittorrent/config /opt/default-qbittorrent-config
 COPY config/alist /opt/default-alist-config
