@@ -9,6 +9,25 @@ echo "=========================================="
 ALIST_DATA="${ALIST_DATA:-/app/data/alist}"
 
 # ------------------------------------------
+# 检测 Alist 挂载模式（mount / strm）
+# mount: 通过 rclone FUSE 挂载，Emby 原生读取视频
+# strm:  生成 .strm 文件，需 StrmAssistant 插件辅助
+# ------------------------------------------
+ALIST_MOUNT_MODE="${ALIST_MOUNT_MODE:-auto}"
+if [ "$ALIST_MOUNT_MODE" = "auto" ]; then
+    if [ -c /dev/fuse ]; then
+        export ALIST_MOUNT_MODE="mount"
+        echo "[INFO] ✅ FUSE 可用，使用 rclone mount 模式（Emby 原生读取视频文件）"
+    else
+        export ALIST_MOUNT_MODE="strm"
+        echo "[INFO] 📝 FUSE 不可用，使用 STRM 同步模式（StrmAssistant 插件辅助截图）"
+    fi
+else
+    export ALIST_MOUNT_MODE
+    echo "[INFO] 挂载模式已手动指定: ALIST_MOUNT_MODE=$ALIST_MOUNT_MODE"
+fi
+
+# ------------------------------------------
 # 安全检查：告警默认密码
 # ------------------------------------------
 if [ "${ALIST_ADMIN_PASS}" = "adminadmin" ] || [ -z "${ALIST_ADMIN_PASS}" ]; then

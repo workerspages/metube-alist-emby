@@ -122,7 +122,8 @@ RUN chmod +x /app/db-sync.sh /app/alist-strm-sync.py /app/strm-debug-server.py
 # Copy Emby auto-scan watcher script
 # ------------------------------------------
 COPY app/emby-scan-watcher.sh /app/emby-scan-watcher.sh
-RUN chmod +x /app/emby-scan-watcher.sh
+COPY app/alist-mount.sh /app/alist-mount.sh
+RUN chmod +x /app/emby-scan-watcher.sh /app/alist-mount.sh
 
 # ------------------------------------------
 # Install MeTube
@@ -204,6 +205,8 @@ ENV EMBY_API_KEY=""
 ENV ALIST_DATA=/app/data/alist
 ENV ALIST_USER=admin
 ENV ALIST_ADMIN_PASS=""
+# auto=自动检测FUSE / mount=强制rclone挂载 / strm=强制.strm同步
+ENV ALIST_MOUNT_MODE=auto
 
 # MetaTube Server defaults
 ENV METATUBE_SERVER_TOKEN=""

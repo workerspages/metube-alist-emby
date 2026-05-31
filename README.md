@@ -171,9 +171,21 @@ RUN mkdir -p /data/media /data/config \
 | 插件 | 用途 |
 |------|------|
 | [MetaTube](https://github.com/metatube-community/metatube-sdk-go) | 刷削元数据 |
-| [StrmAssistant](https://github.com/sjtuross/StrmAssistant) | 为 `.strm` 文件启用视频截图（Image Capture）、预览缩略图、媒体信息提取等增强功能（免费社区版，支持 Emby 4.8.x） |
+| [StrmAssistant](https://github.com/sjtuross/StrmAssistant) | 为 `.strm` 文件启用视频截图（Image Capture）（免费社区版，strm 模式下使用） |
 
-> **📸 StrmAssistant 配置要点：** 容器已内置 StrmAssistant 插件（社区版 v2.0.0.30），Emby 已锁定为 4.8.11.0 以确保兼容。启动后在 Emby 插件页面即可看到。请确保媒体库高级选项中 **"Image Capture" 已开启**，StrmAssistant 会自动接管 `.strm` 文件的截图生成。如遇截图超时，可在 `system.xml` 中调大 `ImageExtractionTimeoutMs`（默认已设为 30 秒）。
+#### 🔀 Alist 挂载模式（自动切换）
+
+容器支持两种模式访问 Alist 网盘文件，**启动时自动检测**：
+
+| 模式 | 触发条件 | 原理 | Image Capture | 适用场景 |
+|------|---------|------|--------------|---------|
+| **mount** | `/dev/fuse` 存在 | rclone FUSE 挂载 Alist WebDAV 到 `/media/alist` | ✅ Emby 原生支持 | 本地 Docker / VPS |
+| **strm** | 无 FUSE 支持 | 生成 `.strm` 文件 + StrmAssistant 插件 | ✅ 插件辅助 | PaaS 平台 |
+
+通过环境变量 `ALIST_MOUNT_MODE` 可手动覆盖：`auto`（默认）/ `mount` / `strm`
+
+> **本地 Docker 用户**：docker-compose.yml 中已配置 `devices: [/dev/fuse]`，开箱即用。
+> **PaaS 用户**：无需配置，自动回退到 strm 模式。
 
 > `https://your-domain.com`
 

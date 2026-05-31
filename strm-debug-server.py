@@ -209,7 +209,7 @@ def get_emby_log():
 
 def get_env_info():
     """获取相关环境变量（脱敏）"""
-    keys = ["ALIST_USER", "ALIST_DATA", "EMBY_PROGRAMDATA", "TZ"]
+    keys = ["ALIST_USER", "ALIST_DATA", "ALIST_MOUNT_MODE", "EMBY_PROGRAMDATA", "TZ"]
     env = {}
     for k in keys:
         env[k] = os.environ.get(k, "<未设置>")
@@ -612,7 +612,7 @@ class DebugHandler(BaseHTTPRequestHandler):
 
     # 允许的服务白名单（与 supervisord.conf 中定义的服务名一致）
     ALLOWED_SERVICES = {
-        "caddy", "emby", "metube", "alist", "alist-strm-sync",
+        "caddy", "emby", "metube", "alist", "alist-mount", "alist-strm-sync",
         "strm-debug", "qbittorrent", "metatube-server", "rclone-webdav",
         "emby-scan-watcher"
     }

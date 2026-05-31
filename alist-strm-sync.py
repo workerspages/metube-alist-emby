@@ -132,6 +132,12 @@ def sync():
 
 
 if __name__ == "__main__":
+    # rclone mount 模式下无需 STRM 同步
+    if os.environ.get("ALIST_MOUNT_MODE") == "mount":
+        logging.info("rclone mount 模式已激活，STRM 同步已禁用（Emby 直接读取挂载目录）")
+        import signal
+        signal.pause()
+
     logging.info("Alist STRM sync service started. Waiting for Alist initialization...")
     time.sleep(10)  # 启动时等待10秒
     while True:
