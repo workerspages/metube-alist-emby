@@ -20,6 +20,13 @@ services:
       - SYS_ADMIN
     security_opt:
       - apparmor:unconfined
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 700M
+          
     environment:
       - TZ=Asia/Shanghai
 
