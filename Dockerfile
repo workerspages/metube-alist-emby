@@ -86,7 +86,10 @@ RUN case "$TARGETARCH" in \
   arm64) QBIT_ARCH="aarch64" ;; \
   esac \
   && curl -L -o /tmp/qbittorrent-ee.zip \
-  "https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases/latest/download/qbittorrent-enhanced-nox_${QBIT_ARCH}-linux-musl_static.zip" \
+# 最新版本
+# "https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases/latest/download/qbittorrent-enhanced-nox_${QBIT_ARCH}-linux-musl_static.zip" \
+# 最固定 5.1.3.10 版本
+  "https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases/download/release-5.1.3.10/qbittorrent-enhanced-nox_x86_64-linux-musl_static.zip" \
   && unzip -o -q /tmp/qbittorrent-ee.zip -d /usr/local/bin/ \
   && chmod +x /usr/local/bin/qbittorrent-nox \
   && rm -f /tmp/qbittorrent-ee.zip
