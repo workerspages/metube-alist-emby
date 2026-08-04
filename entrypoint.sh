@@ -68,8 +68,8 @@ mkdir -p /media/metube /media/qbittorrent /media/movies /media/alist \
 # ------------------------------------------
 # WebDAV Backup Pull (For Ephemeral PaaS)
 # ------------------------------------------
-if [ -n "${WEBDAV_BACKUP_URL}" ]; then
-    echo "[INFO] WEBDAV_BACKUP_URL is set. Preparing to pull backup from WebDAV..."
+if [ "${WEBDAV_SYNC_ENABLE}" = "true" ]; then
+    echo "[INFO] WEBDAV_SYNC_ENABLE is true. Preparing to pull backup from WebDAV..."
     
     # Generate rclone config
     cat <<EOF > /tmp/rclone-backup.conf
@@ -82,8 +82,9 @@ pass = $(rclone obscure "${WEBDAV_BACKUP_PASS}" 2>/dev/null || echo "")
 EOF
 
     echo "[INFO] Pulling /config data from WebDAV..."
-    # Copy from WebDAV to /config. We ignore errors so container can start even if first pull fails
-    rclone copy --config /tmp/rclone-backup.conf backup: /config/ || echo "[WARN] WebDAV pull failed or bucket is empty. Starting fresh."
+    rclone copy --config /tmp/rclone-backup.conf backup:config/ /config/ || echo "[WARN] WebDAV pull for /config failed or bucket is empty."
+    echo "[INFO] Pulling /media data from WebDAV..."
+    rclone copy --config /tmp/rclone-backup.conf backup:media/ /media/ || echo "[WARN] WebDAV pull for /media failed or bucket is empty."
     echo "[INFO] WebDAV pull complete."
 fi
 

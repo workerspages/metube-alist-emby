@@ -100,10 +100,14 @@ docker run -d --name media-center --restart unless-stopped -p 8080:8080 -v ./med
 
 ### ☁️ WebDAV 远程自动备份 (适用于无持久化 PaaS)
 
-如果您部署在完全没有任何持久化存储的 PaaS 平台（重启会清空所有数据），可以配置以下环境变量，容器会在每次启动时自动从 WebDAV 拉取历史数据，并在运行期间自动将修改增量备份回网盘。完美解决 PaaS 数据丢失问题。
+如果您部署在完全没有任何持久化存储的 PaaS 平台（重启会清空所有数据），可以配置以下环境变量，容器会在每次启动时自动从 WebDAV 拉取历史数据，并在运行期间自动将**所有配置数据（/config）和所有媒体下载数据（/media）**增量备份回网盘。完美解决 PaaS 数据丢失问题。
+
+> [!WARNING]
+> 因为包含了 `/media`（视频大文件），请确保 PaaS 与云盘之间有充足的带宽与流量配额。在本地 VPS 有持久卷的环境中，请**不要**开启此功能。
 
 | 环境变量 | 说明 |
 |---------|------|
+| `WEBDAV_SYNC_ENABLE` | **总开关**，必须设置为 `true` 才会开启 WebDAV 备份功能 |
 | `WEBDAV_BACKUP_URL` | 外部 WebDAV 网盘的完整 URL，如 `https://dav.jianguoyun.com/dav/backup/` |
 | `WEBDAV_BACKUP_USER` | WebDAV 用户名 |
 | `WEBDAV_BACKUP_PASS` | WebDAV 密码 |
@@ -319,6 +323,7 @@ environment:
 | `RCLONE_WEBDAV_PORT` | `8085` | rclone WebDAV 内部监听端口 |
 | `RCLONE_WEBDAV_USER` | _(空)_ | WebDAV 认证用户名 |
 | `RCLONE_WEBDAV_PASS` | _(空)_ | WebDAV 认证密码 |
+| `WEBDAV_SYNC_ENABLE` | _(空)_ | WebDAV 远程备份总开关，设为 `true` 开启 |
 | `WEBDAV_BACKUP_URL` | _(空)_ | 用于远程备份和还原的 WebDAV 地址 |
 | `WEBDAV_BACKUP_USER` | _(空)_ | 用于远程备份的 WebDAV 用户名 |
 | `WEBDAV_BACKUP_PASS` | _(空)_ | 用于远程备份的 WebDAV 密码 |

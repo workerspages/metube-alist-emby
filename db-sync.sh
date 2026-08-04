@@ -53,6 +53,8 @@ while true; do
     # 增量推送至 WebDAV
     if [ -f /tmp/rclone-backup.conf ]; then
         echo "[db-sync] Syncing /config to WebDAV backup..."
-        rclone sync --config /tmp/rclone-backup.conf /config/ backup: || echo "[WARN] WebDAV sync failed, will retry next cycle."
+        rclone sync --config /tmp/rclone-backup.conf /config/ backup:config/ || echo "[WARN] WebDAV sync for /config failed."
+        echo "[db-sync] Syncing /media to WebDAV backup..."
+        rclone sync --config /tmp/rclone-backup.conf /media/ backup:media/ || echo "[WARN] WebDAV sync for /media failed."
     fi
 done
