@@ -82,9 +82,9 @@ pass = $(rclone obscure "${WEBDAV_BACKUP_PASS}" 2>/dev/null || echo "")
 EOF
 
     echo "[INFO] Validating WebDAV connection..."
-    rclone mkdir --config /tmp/rclone-backup.conf backup:config/ > /tmp/rclone-validation.log 2>&1
+    (unset RCLONE_WEBDAV_USER RCLONE_WEBDAV_PASS; rclone mkdir --config /tmp/rclone-backup.conf backup:config/ > /tmp/rclone-validation.log 2>&1)
     RET1=$?
-    rclone mkdir --config /tmp/rclone-backup.conf backup:media/ >> /tmp/rclone-validation.log 2>&1
+    (unset RCLONE_WEBDAV_USER RCLONE_WEBDAV_PASS; rclone mkdir --config /tmp/rclone-backup.conf backup:media/ >> /tmp/rclone-validation.log 2>&1)
     RET2=$?
     
     if [ $RET1 -ne 0 ] || [ $RET2 -ne 0 ]; then
@@ -100,9 +100,9 @@ EOF
     echo "[INFO] ✅ WebDAV connection successful!"
 
     echo "[INFO] Pulling /config data from WebDAV..."
-    rclone copy --config /tmp/rclone-backup.conf backup:config/ /config/ || echo "[WARN] WebDAV pull for /config failed or bucket is empty."
+    (unset RCLONE_WEBDAV_USER RCLONE_WEBDAV_PASS; rclone copy --config /tmp/rclone-backup.conf backup:config/ /config/ || echo "[WARN] WebDAV pull for /config failed or bucket is empty.")
     echo "[INFO] Pulling /media data from WebDAV..."
-    rclone copy --config /tmp/rclone-backup.conf backup:media/ /media/ || echo "[WARN] WebDAV pull for /media failed or bucket is empty."
+    (unset RCLONE_WEBDAV_USER RCLONE_WEBDAV_PASS; rclone copy --config /tmp/rclone-backup.conf backup:media/ /media/ || echo "[WARN] WebDAV pull for /media failed or bucket is empty.")
     echo "[INFO] WebDAV pull complete."
 fi
 

@@ -44,9 +44,9 @@ fi
 sync_to_webdav() {
     if [ -f /tmp/rclone-backup.conf ]; then
         echo "[db-sync] Syncing /config to WebDAV backup..."
-        rclone sync --config /tmp/rclone-backup.conf /config/ backup:config/ || echo "[WARN] WebDAV sync for /config failed."
+        (unset RCLONE_WEBDAV_USER RCLONE_WEBDAV_PASS; rclone sync --config /tmp/rclone-backup.conf /config/ backup:config/ || echo "[WARN] WebDAV sync for /config failed.")
         echo "[db-sync] Syncing /media to WebDAV backup..."
-        rclone sync --config /tmp/rclone-backup.conf /media/ backup:media/ || echo "[WARN] WebDAV sync for /media failed."
+        (unset RCLONE_WEBDAV_USER RCLONE_WEBDAV_PASS; rclone sync --config /tmp/rclone-backup.conf /media/ backup:media/ || echo "[WARN] WebDAV sync for /media failed.")
     fi
 }
 
