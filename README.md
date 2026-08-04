@@ -98,6 +98,17 @@ docker run -d --name media-center --restart unless-stopped -p 8080:8080 -v ./med
 | `/media/qbittorrent` | qBittorrent 下载的数据 |
 | `/config` | 所有服务配置数据 |
 
+### ☁️ WebDAV 远程自动备份 (适用于无持久化 PaaS)
+
+如果您部署在完全没有任何持久化存储的 PaaS 平台（重启会清空所有数据），可以配置以下环境变量，容器会在每次启动时自动从 WebDAV 拉取历史数据，并在运行期间自动将修改增量备份回网盘。完美解决 PaaS 数据丢失问题。
+
+| 环境变量 | 说明 |
+|---------|------|
+| `WEBDAV_BACKUP_URL` | 外部 WebDAV 网盘的完整 URL，如 `https://dav.jianguoyun.com/dav/backup/` |
+| `WEBDAV_BACKUP_USER` | WebDAV 用户名 |
+| `WEBDAV_BACKUP_PASS` | WebDAV 密码 |
+| `WEBDAV_SYNC_INTERVAL` | 自动备份的时间间隔（秒），默认 `300` |
+
 ---
 <details>
 <summary>===== 单卷映射子目录 =====</summary>
@@ -308,6 +319,10 @@ environment:
 | `RCLONE_WEBDAV_PORT` | `8085` | rclone WebDAV 内部监听端口 |
 | `RCLONE_WEBDAV_USER` | _(空)_ | WebDAV 认证用户名 |
 | `RCLONE_WEBDAV_PASS` | _(空)_ | WebDAV 认证密码 |
+| `WEBDAV_BACKUP_URL` | _(空)_ | 用于远程备份和还原的 WebDAV 地址 |
+| `WEBDAV_BACKUP_USER` | _(空)_ | 用于远程备份的 WebDAV 用户名 |
+| `WEBDAV_BACKUP_PASS` | _(空)_ | 用于远程备份的 WebDAV 密码 |
+| `WEBDAV_SYNC_INTERVAL`| `300` | WebDAV 远程备份间隔（秒） |
 
 ### MeTube 官方变量（可直接使用）
 

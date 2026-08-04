@@ -66,6 +66,28 @@ mkdir -p /media/metube /media/qbittorrent /media/movies /media/alist \
     /app/data/qBittorrent/qBittorrent/config
 
 # ------------------------------------------
+# WebDAV Backup Pull (For Ephemeral PaaS)
+# ------------------------------------------
+if [ -n "${WEBDAV_BACKUP_URL}" ]; then
+    echo "[INFO] WEBDAV_BACKUP_URL is set. Preparing to pull backup from WebDAV..."
+    
+    # Generate rclone config
+    cat <<EOF > /tmp/rclone-backup.conf
+[backup]
+type = webdav
+url = ${WEBDAV_BACKUP_URL}
+vendor = other
+user = ${WEBDAV_BACKUP_USER}
+pass = $(rclone obscure "${WEBDAV_BACKUP_PASS}" 2>/dev/null || echo "")
+EOF
+
+    echo "[INFO] Pulling /config data from WebDAV..."
+    # Copy from WebDAV to /config. We ignore errors so container can start even if first pull fails
+    rclone copy --config /tmp/rclone-backup.conf backup: /config/ || echo "[WARN] WebDAV pull failed or bucket is empty. Starting fresh."
+    echo "[INFO] WebDAV pull complete."
+fi
+
+# ------------------------------------------
 # Initial DB Restore (PaaS SQLite Protection)
 # ------------------------------------------
 if [ -x /app/db-sync.sh ]; then
