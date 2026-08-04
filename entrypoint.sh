@@ -82,8 +82,12 @@ pass = $(rclone obscure "${WEBDAV_BACKUP_PASS}" 2>/dev/null || echo "")
 EOF
 
     echo "[INFO] Validating WebDAV connection..."
-    if ! rclone mkdir --config /tmp/rclone-backup.conf backup:config/ 2>&1 | tee /tmp/rclone-validation.log || \
-       ! rclone mkdir --config /tmp/rclone-backup.conf backup:media/ 2>&1 | tee -a /tmp/rclone-validation.log; then
+    rclone mkdir --config /tmp/rclone-backup.conf backup:config/ > /tmp/rclone-validation.log 2>&1
+    RET1=$?
+    rclone mkdir --config /tmp/rclone-backup.conf backup:media/ >> /tmp/rclone-validation.log 2>&1
+    RET2=$?
+    
+    if [ $RET1 -ne 0 ] || [ $RET2 -ne 0 ]; then
         echo "================================================================="
         echo "[ERROR] ❌ WebDAV connection validation failed!"
         echo "[ERROR] Please check WEBDAV_BACKUP_URL, WEBDAV_BACKUP_USER, and WEBDAV_BACKUP_PASS."
