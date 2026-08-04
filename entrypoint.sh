@@ -81,6 +81,20 @@ user = ${WEBDAV_BACKUP_USER}
 pass = $(rclone obscure "${WEBDAV_BACKUP_PASS}" 2>/dev/null || echo "")
 EOF
 
+    echo "[INFO] Validating WebDAV connection..."
+    if ! rclone mkdir --config /tmp/rclone-backup.conf backup:config/ 2>&1 | tee /tmp/rclone-validation.log || \
+       ! rclone mkdir --config /tmp/rclone-backup.conf backup:media/ 2>&1 | tee -a /tmp/rclone-validation.log; then
+        echo "================================================================="
+        echo "[ERROR] ❌ WebDAV connection validation failed!"
+        echo "[ERROR] Please check WEBDAV_BACKUP_URL, WEBDAV_BACKUP_USER, and WEBDAV_BACKUP_PASS."
+        echo "[ERROR] Detailed rclone error:"
+        cat /tmp/rclone-validation.log
+        echo "================================================================="
+        echo "[ERROR] 🛑 Container startup aborted due to invalid WebDAV configuration."
+        exit 1
+    fi
+    echo "[INFO] ✅ WebDAV connection successful!"
+
     echo "[INFO] Pulling /config data from WebDAV..."
     rclone copy --config /tmp/rclone-backup.conf backup:config/ /config/ || echo "[WARN] WebDAV pull for /config failed or bucket is empty."
     echo "[INFO] Pulling /media data from WebDAV..."
