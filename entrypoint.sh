@@ -163,6 +163,36 @@ if [ -d /opt/default-emby-config ]; then
 
 fi
 
+# Check and restore missing Administrator policy in users.db (Emby 4.9+ fix)
+if [ -f "${EMBY_PROGRAMDATA:-/app/data/emby}/data/users.db" ]; then
+    HAS_ADMIN=$(sqlite3 "${EMBY_PROGRAMDATA:-/app/data/emby}/data/users.db" "SELECT count(*) FROM LocalUsersv2 WHERE data LIKE '%\"IsAdministrator\": true%' OR data LIKE '%\"IsAdministrator\":true%';" 2>/dev/null || echo "0")
+    if [ "$HAS_ADMIN" -eq 0 ]; then
+        echo "[INFO] No Administrator found in users.db, injecting default admin policy..."
+        python3 -c '
+import sqlite3, json
+try:
+    conn = sqlite3.connect("'"${EMBY_PROGRAMDATA:-/app/data/emby}/data/users.db"'")
+    c = conn.cursor()
+    c.execute("SELECT id, data FROM LocalUsersv2")
+    rows = c.fetchall()
+    updated = False
+    for row in rows:
+        uid, data_str = row
+        data = json.loads(data_str)
+        if data.get("Name") == "admin":
+            data["Policy"] = {"IsAdministrator": True, "IsHidden": False, "IsDisabled": False, "EnableAllDevices": True, "EnableSharedDeviceControl": True, "EnableRemoteControlOfOtherUsers": True, "EnableSharedAudioControl": True, "EnableRemoteAccess": True, "EnableLiveTvManagement": True, "EnableLiveTvAccess": True, "EnableMediaPlayback": True, "EnableAudioPlaybackTranscoding": True, "EnableVideoPlaybackTranscoding": True, "EnablePlaybackRemuxing": True, "ForceRemoteSourceTranscoding": False, "EnableContentDeletion": True, "EnableContentDeletionFromFolders": [], "EnableContentDownloading": True, "EnableSyncTranscoding": True, "EnableMediaConversion": True, "EnabledDevices": [], "EnableAllChannels": True, "EnabledChannels": [], "EnableAllFolders": True, "EnabledFolders": [], "InvalidLoginAttemptCount": 0, "LoginAttemptsBeforeLockout": -1, "EnablePublicSharing": True, "RemoteClientBitrateLimit": 0, "AuthenticationProviderId": "Emby.Server.Implementations.Library.DefaultAuthenticationProvider"}
+            c.execute("UPDATE LocalUsersv2 SET data = ? WHERE id = ?", (json.dumps(data), uid))
+            updated = True
+            print("[INFO] Successfully injected admin policy for user: admin")
+    if updated: conn.commit()
+    conn.close()
+except Exception as e:
+    print(f"[ERROR] Failed to inject admin policy: {e}")
+'
+    fi
+fi
+
+
 # ------------------------------------------
 # Install Emby plugins from /opt/emby-plugins
 # Emby data plugins directory: ${EMBY_PROGRAMDATA}/plugins/
