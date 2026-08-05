@@ -292,21 +292,29 @@ environment:
 
 ### 9. 🎛️ 按需启动特定服务 (ENABLED_SERVICES / DISABLED_SERVICES)
 
-为了适应不同的部署需求，容器提供了两种反向的控制逻辑：
-- `ENABLED_SERVICES` (白名单)：**只启动**列表中的服务。
-- `DISABLED_SERVICES` (黑名单)：**排除启动**列表中的服务。
+我们提供两种模式（白名单与黑名单）来按需启动特定服务。这对于仅需启动代理/下载节点而不启动 Emby 等重负载应用非常有用。
 
 **支持的服务名称**（对应核心组件）：
 `caddy`, `emby`, `metube`, `alist`, `alist-mount`, `alist-strm-sync`, `strm-thumb-gen`, `strm-debug`, `qbittorrent`, `metatube-server`, `rclone-webdav`, `emby-scan-watcher`, `db-sync`
 
-**示例**：
-- 【排除法】只不启动 qBittorrent，其它所有服务照常启动：
-  `DISABLED_SERVICES=qbittorrent`
-- 【白名单法】仅作为视频下载和网盘代理（不启动 Emby / BT）：
-  `ENABLED_SERVICES=caddy,alist,metube`
+#### 模式 A: 黑名单排除（推荐，更简单）
+如果您想启动绝大多数服务，仅仅不想启动其中一两个，请使用 `DISABLED_SERVICES`：
+```yaml
+    environment:
+      # 不启动 qBittorrent 和其关联服务，其他一切照常启动
+      - DISABLED_SERVICES=qbittorrent
+```
+
+#### 模式 B: 白名单指定
+如果您只需要极少数的服务，请使用 `ENABLED_SERVICES`（逗号分隔）：
+```yaml
+    environment:
+      # 仅启动代理、Alist和MeTube
+      - ENABLED_SERVICES=caddy,alist,metube
+```
 
 > [!TIP]
-> 留空或不配置此变量时，容器将默认启动**所有**内置服务。不在白名单内或身处黑名单内的服务将被禁止自启（状态为 `STOPPED`），但您仍可以通过诊断面板随时手动启动它们。
+> 留空或不配置这两个变量时，容器将默认启动**所有**内置服务。被排除的服务将被禁止自启（状态为 `STOPPED`），但您仍可以通过诊断面板随时手动拉起它们。黑名单的优先级高于白名单。
 
 ## 安全说明
 
@@ -331,7 +339,7 @@ environment:
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `ENABLED_SERVICES` | _(空)_ | 按需启动的服务列表（白名单，逗号分隔），为空则全部启动 |
-| `DISABLED_SERVICES`| _(空)_ | 按需排除的服务列表（黑名单，逗号分隔） |
+| `DISABLED_SERVICES`| _(空)_ | 按需禁用的服务列表（黑名单，逗号分隔），为空则不禁用任何服务 |
 | `ALIST_ADMIN_PASS` | _(空)_ | Alist 管理员密码（每次启动时设置） |
 | `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
 | `EMBY_PROGRAMDATA` | `/config/emby` | Emby 数据目录 |

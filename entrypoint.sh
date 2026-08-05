@@ -209,28 +209,39 @@ fi
 # ------------------------------------------
 # Apply ENABLED_SERVICES if specified
 # ------------------------------------------
-if [ -n "$ENABLED_SERVICES" ]; then
-    echo "[INFO] ENABLED_SERVICES is set. Applying custom service selection..."
+if [ -n "$ENABLED_SERVICES" ] || [ -n "$DISABLED_SERVICES" ]; then
+    echo "[INFO] Custom service selection is set. Applying..."
     python3 -c "
 import os
 
 enabled_env = os.environ.get('ENABLED_SERVICES', '').strip()
-if enabled_env:
-    enabled_services = [s.strip() for s in enabled_env.split(',') if s.strip()]
+disabled_env = os.environ.get('DISABLED_SERVICES', '').strip()
+
+enabled_services = [s.strip() for s in enabled_env.split(',') if s.strip()]
+disabled_services = [s.strip() for s in disabled_env.split(',') if s.strip()]
+
+if enabled_services or disabled_services:
     lines = []
     current_prog = None
     with open('/etc/supervisor/conf.d/supervisord.conf', 'r') as f:
         for line in f:
             if line.startswith('[program:'):
                 current_prog = line.strip()[9:-1]
-            if line.startswith('autostart=') and current_prog and current_prog not in enabled_services:
+                
+            is_enabled = True
+            if enabled_services and current_prog not in enabled_services:
+                is_enabled = False
+            if disabled_services and current_prog in disabled_services:
+                is_enabled = False
+                
+            if line.startswith('autostart=') and current_prog and not is_enabled:
                 lines.append('autostart=false\n')
             else:
                 lines.append(line)
                 
     with open('/etc/supervisor/conf.d/supervisord.conf', 'w') as f:
         f.writelines(lines)
-    print(f'[INFO] Only starting the following services automatically: {enabled_services}')
+    print(f'[INFO] Service selection applied. Enabled list: {enabled_services}, Disabled list: {disabled_services}')
 "
 fi
 

@@ -190,6 +190,10 @@ ENV TZ=Asia/Shanghai
 # 示例：ENABLED_SERVICES="caddy,alist,metube"
 ENV ENABLED_SERVICES=""
 
+# 逗号分隔的禁用服务列表（黑名单机制，优先级高于白名单）
+# 示例：DISABLED_SERVICES="qbittorrent,emby"
+ENV DISABLED_SERVICES=""
+
 # MeTube defaults
 ENV DOWNLOAD_DIR=/media/metube
 ENV STATE_DIR=/media/metube/.metube
