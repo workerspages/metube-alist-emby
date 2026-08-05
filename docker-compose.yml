@@ -23,11 +23,11 @@ services:
     
     # 要限制 Docker 容器的资源占用
     # 在总内存只有 1GB 的情况下，我们必须为 Linux 操作系统预留至少 300MB 的内存，以防止系统彻底卡死或 SSH 断开连接。建议将容器的内存极限压低到 700M，CPU 限制在 0.8
-    deploy:
-      resources:
-        limits:
-          cpus: '0.8'
-          memory: 700M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.8'
+    #       memory: 700M
           
     environment:
       - TZ=Asia/Shanghai

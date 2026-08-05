@@ -150,9 +150,10 @@ fi
 
 # ------------------------------------------
 # Install Emby plugins from /opt/emby-plugins
-# Emby system plugins directory: /opt/emby-server/system/plugins/
+# Emby data plugins directory: ${EMBY_PROGRAMDATA}/plugins/
 # ------------------------------------------
-EMBY_PLUGIN_DIR="/opt/emby-server/system/plugins"
+EMBY_PLUGIN_DIR="${EMBY_PROGRAMDATA:-/app/data/emby}/plugins"
+mkdir -p "$EMBY_PLUGIN_DIR"
 if [ -d /opt/emby-plugins ]; then
     for dll in /opt/emby-plugins/*.dll; do
         [ -f "$dll" ] || continue
