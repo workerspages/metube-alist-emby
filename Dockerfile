@@ -54,9 +54,9 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
   && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------
-# Install Emby Server
+# Install Emby Server (固定版本以完美适配预设 config/emby)
 # ------------------------------------------
-RUN EMBY_VERSION=$(curl -s https://api.github.com/repos/MediaBrowser/Emby.Releases/releases/latest | jq -r '.tag_name') \
+RUN EMBY_VERSION="4.9.5.0" \
   && echo "Installing Emby ${EMBY_VERSION} for ${TARGETARCH}" \
   && curl -L -o /tmp/emby.deb \
   "https://github.com/MediaBrowser/Emby.Releases/releases/download/${EMBY_VERSION}/emby-server-deb_${EMBY_VERSION}_${TARGETARCH}.deb" \
