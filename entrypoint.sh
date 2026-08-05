@@ -149,6 +149,11 @@ if [ -d /opt/default-emby-config ]; then
     # Check if the destination is an uncompleted wizard state (e.g. cached by db-sync.sh from a previous failed run)
     if [ -f "${EMBY_PROGRAMDATA:-/app/data/emby}/config/system.xml" ] && grep -q "<IsStartupWizardCompleted>false</IsStartupWizardCompleted>" "${EMBY_PROGRAMDATA:-/app/data/emby}/config/system.xml" 2>/dev/null; then
         echo "[INFO] Detected uncompleted wizard state. Forcefully applying preset..."
+        # CRITICAL: We MUST delete any existing SQLite -wal and -shm files!
+        # Otherwise, if 4.9.x corrupted the db or the state is incomplete, the leftover WAL file 
+        # will instantly overwrite and destroy the freshly copied preset users.db!
+        rm -f "${EMBY_PROGRAMDATA:-/app/data/emby}/data/"*.db-wal 2>/dev/null || true
+        rm -f "${EMBY_PROGRAMDATA:-/app/data/emby}/data/"*.db-shm 2>/dev/null || true
         cp -ra /opt/default-emby-config/* "${EMBY_PROGRAMDATA:-/app/data/emby}/" 2>/dev/null || true
     else
         # Normal safe copy that won't overwrite existing configured data
