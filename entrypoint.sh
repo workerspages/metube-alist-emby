@@ -155,15 +155,7 @@ if [ -d /opt/default-emby-config ]; then
         cp -rn /opt/default-emby-config/* "${EMBY_PROGRAMDATA:-/app/data/emby}/" 2>/dev/null || true
     fi
 
-    # Emby 4.8+ requires User Policy inside users.db. If the preset uses the old policy.xml format,
-    # force Emby to migrate it by setting lastversion.txt to 4.7.0.0.
-    # This prevents Emby from showing the startup wizard due to "no admin user found".
-    if find "${EMBY_PROGRAMDATA:-/app/data/emby}/config/users" -name "policy.xml" -print -quit 2>/dev/null | grep -q .; then
-        if [ -f "${EMBY_PROGRAMDATA:-/app/data/emby}/data/lastversion.txt" ]; then
-            echo "[INFO] Legacy policy.xml detected. Forcing Emby database migration to preserve admin rights..."
-            echo "4.7.0.0" > "${EMBY_PROGRAMDATA:-/app/data/emby}/data/lastversion.txt"
-        fi
-    fi
+
 fi
 
 # ------------------------------------------
