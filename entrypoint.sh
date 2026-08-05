@@ -123,8 +123,8 @@ if command -v sqlite3 >/dev/null 2>&1; then
             # Use quick_check to avoid extremely long startup times on large libraries
             if ! sqlite3 "$db" "PRAGMA quick_check;" | grep -qi "^ok$"; then
                 echo "[WARN] ⚠️  Corruption detected in $db! Attempting recovery..."
-                # .recover extracts SQL and we pipe it to a new db
-                if sqlite3 "$db" ".recover" | sqlite3 "$db.recovered"; then
+                # .dump extracts SQL and we pipe it to a new db
+                if sqlite3 "$db" ".dump" | sqlite3 "$db.recovered"; then
                     mv "$db" "$db.corrupted.bak"
                     mv "$db.recovered" "$db"
                     echo "[INFO] ✅  Successfully recovered $db."

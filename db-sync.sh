@@ -26,7 +26,26 @@ sync_to_persist() {
     for dir in "${SYNC_DIRS[@]}"; do
         if [ -d "$RUN_DIR/$dir" ]; then
             mkdir -p "$PERSIST_DIR/$dir"
-            rsync -a --delete "$RUN_DIR/$dir/" "$PERSIST_DIR/$dir/"
+            
+            if command -v sqlite3 >/dev/null 2>&1 && { [ "$dir" = "emby" ] || [ "$dir" = "alist" ]; }; then
+                # Safe backup for SQLite DBs (Emby/Alist)
+                # First, sync everything EXCEPT the databases and WALs
+                rsync -a --delete --exclude="*.db" --exclude="*.db-wal" --exclude="*.db-shm" "$RUN_DIR/$dir/" "$PERSIST_DIR/$dir/"
+                
+                # Find all .db files recursively in the run directory and back them up safely
+                find "$RUN_DIR/$dir" -type f -name "*.db" | while read -r db_path; do
+                    rel_path="${db_path#$RUN_DIR/$dir/}"
+                    target_dir="$PERSIST_DIR/$dir/$(dirname "$rel_path")"
+                    mkdir -p "$target_dir"
+                    # Use sqlite3 .backup for an atomic snapshot
+                    sqlite3 "$db_path" ".backup '$target_dir/$(basename "$db_path")'" || echo "[WARN] Failed to backup $db_path"
+                done
+                
+                # Clean up any old WAL/SHM files in the persistent volume to prevent restore conflicts
+                find "$PERSIST_DIR/$dir" -type f \( -name "*.db-wal" -o -name "*.db-shm" \) -delete 2>/dev/null || true
+            else
+                rsync -a --delete "$RUN_DIR/$dir/" "$PERSIST_DIR/$dir/"
+            fi
         fi
     done
     echo "[db-sync] Sync complete."
