@@ -186,6 +186,10 @@ ENV UMASK=022
 ENV GIDLIST=0
 ENV TZ=Asia/Shanghai
 
+# 逗号分隔的开启服务列表（为空则默认全部开启）
+# 示例：ENABLED_SERVICES="caddy,alist,metube"
+ENV ENABLED_SERVICES=""
+
 # MeTube defaults
 ENV DOWNLOAD_DIR=/media/metube
 ENV STATE_DIR=/media/metube/.metube

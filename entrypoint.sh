@@ -206,5 +206,33 @@ if [ -d /opt/default-qbittorrent-config ]; then
     cp -rn /opt/default-qbittorrent-config/* "$QBIT_CONFIG_DIR/" 2>/dev/null || true
 fi
 
+# ------------------------------------------
+# Apply ENABLED_SERVICES if specified
+# ------------------------------------------
+if [ -n "$ENABLED_SERVICES" ]; then
+    echo "[INFO] ENABLED_SERVICES is set. Applying custom service selection..."
+    python3 -c "
+import os
+
+enabled_env = os.environ.get('ENABLED_SERVICES', '').strip()
+if enabled_env:
+    enabled_services = [s.strip() for s in enabled_env.split(',') if s.strip()]
+    lines = []
+    current_prog = None
+    with open('/etc/supervisor/conf.d/supervisord.conf', 'r') as f:
+        for line in f:
+            if line.startswith('[program:'):
+                current_prog = line.strip()[9:-1]
+            if line.startswith('autostart=') and current_prog and current_prog not in enabled_services:
+                lines.append('autostart=false\n')
+            else:
+                lines.append(line)
+                
+    with open('/etc/supervisor/conf.d/supervisord.conf', 'w') as f:
+        f.writelines(lines)
+    print(f'[INFO] Only starting the following services automatically: {enabled_services}')
+"
+fi
+
 echo "Starting all services via supervisord..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
