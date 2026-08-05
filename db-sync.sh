@@ -13,7 +13,14 @@ sync_to_run() {
     for dir in "${SYNC_DIRS[@]}"; do
         if [ -d "$PERSIST_DIR/$dir" ]; then
             mkdir -p "$RUN_DIR/$dir"
-            rsync -a --delete "$PERSIST_DIR/$dir/" "$RUN_DIR/$dir/"
+            if command -v sqlite3 >/dev/null 2>&1 && { [ "$dir" = "emby" ] || [ "$dir" = "alist" ]; }; then
+                # Always clean up leftover WAL files in the persistent directory before restoring
+                # This prevents previous dirty shutdowns or leftover WALs from corrupting the fresh start
+                find "$PERSIST_DIR/$dir" -type f \( -name "*.db-wal" -o -name "*.db-shm" \) -delete 2>/dev/null || true
+                rsync -a --delete --exclude="*.db-wal" --exclude="*.db-shm" "$PERSIST_DIR/$dir/" "$RUN_DIR/$dir/"
+            else
+                rsync -a --delete "$PERSIST_DIR/$dir/" "$RUN_DIR/$dir/"
+            fi
         else
             mkdir -p "$RUN_DIR/$dir"
         fi
