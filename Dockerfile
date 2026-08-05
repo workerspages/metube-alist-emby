@@ -39,7 +39,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   inotify-tools \
   rsync \
   sqlite3 \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && echo "user_allow_other" >> /etc/fuse.conf
 
 # ------------------------------------------
 # Install Caddy
