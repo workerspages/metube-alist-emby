@@ -45,5 +45,5 @@
   <EnabledDevices />
   <EnableAllDevices>true</EnableAllDevices>
   <AllowCameraUpload>false</AllowCameraUpload>
-  <AllowSharingPersonalItems>false</AllowSharingPersonalItems>
+  <AllowSharingPersonalItems>true</AllowSharingPersonalItems>
 </UserPolicy>

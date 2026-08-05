@@ -15,6 +15,7 @@
   <AutoRunWebApp>true</AutoRunWebApp>
   <EnableRemoteAccess>true</EnableRemoteAccess>
   <LogAllQueryTimes>false</LogAllQueryTimes>
+  <DisableOutgoingIPv6>false</DisableOutgoingIPv6>
   <EnableCaseSensitiveItemIds>true</EnableCaseSensitiveItemIds>
   <MetadataNetworkPath />
   <PreferredMetadataLanguage>zh-CN</PreferredMetadataLanguage>
@@ -52,16 +53,20 @@
   <SimultaneousStreamLimit>0</SimultaneousStreamLimit>
   <DatabaseCacheSizeMB>128</DatabaseCacheSizeMB>
   <EnableSqLiteMmio>false</EnableSqLiteMmio>
-  <PlaylistsUpgradedToM3U>false</PlaylistsUpgradedToM3U>
-  <ImageExtractorUpgraded1>false</ImageExtractorUpgraded1>
+  <PlaylistsUpgradedToM3U>true</PlaylistsUpgradedToM3U>
+  <ImageExtractorUpgraded1>true</ImageExtractorUpgraded1>
   <EnablePeopleLetterSubFolders>true</EnablePeopleLetterSubFolders>
   <OptimizeDatabaseOnShutdown>true</OptimizeDatabaseOnShutdown>
   <DatabaseAnalysisLimit>400</DatabaseAnalysisLimit>
+  <MaxLibraryDatabaseConnections>5</MaxLibraryDatabaseConnections>
+  <MaxAuthDbConnections>5</MaxAuthDbConnections>
+  <MaxOtherDbConnections>3</MaxOtherDbConnections>
   <DisableAsyncIO>false</DisableAsyncIO>
-  <MigratedToUserItemShares8>false</MigratedToUserItemShares8>
-  <MigratedLibraryOptionsToDb>false</MigratedLibraryOptionsToDb>
+  <MigratedToUserItemShares8>true</MigratedToUserItemShares8>
+  <MigratedLibraryOptionsToDb>true</MigratedLibraryOptionsToDb>
   <AllowLegacyLocalNetworkPassword>true</AllowLegacyLocalNetworkPassword>
   <EnableSavedMetadataForPeople>false</EnableSavedMetadataForPeople>
-  <TvChannelsRefreshed>false</TvChannelsRefreshed>
+  <TvChannelsRefreshed>true</TvChannelsRefreshed>
   <ProxyHeaderMode>RemoteAddressesOnly</ProxyHeaderMode>
+  <IsInMaintenanceMode>false</IsInMaintenanceMode>
 </ServerConfiguration>
