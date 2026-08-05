@@ -79,7 +79,7 @@ sync_to_webdav() {
 SYNC_INTERVAL=${WEBDAV_SYNC_INTERVAL:-300}
 echo "[db-sync] Starting background sync loop (every ${SYNC_INTERVAL} seconds)..."
 # 启动后先立即执行一次同步，防止短时间内崩溃丢失数据
-sleep 60 && sync_to_persist
+sleep 60 && sync_to_persist && sync_to_webdav
 while true; do
     # 使用后台 sleep 并 wait，以便 trap 能立即响应中断信号
     sleep ${SYNC_INTERVAL} & wait $!

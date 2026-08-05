@@ -163,6 +163,23 @@ if [ -d /opt/default-emby-config ]; then
 
 fi
 
+# Emby startup diagnostics
+EMBY_DIR="${EMBY_PROGRAMDATA:-/app/data/emby}"
+echo "[INFO] Emby programdata directory: ${EMBY_DIR}"
+ls -la "${EMBY_DIR}/" 2>/dev/null | head -20 || echo "[WARN] ⚠️  Cannot list ${EMBY_DIR}/"
+if [ -f "${EMBY_DIR}/config/system.xml" ]; then
+    WIZARD_STATUS=$(grep -o '<IsStartupWizardCompleted>[^<]*' "${EMBY_DIR}/config/system.xml" | cut -d'>' -f2)
+    echo "[INFO] ✅ Emby system.xml found. Wizard completed: ${WIZARD_STATUS}"
+else
+    echo "[WARN] ⚠️  Emby system.xml NOT found at ${EMBY_DIR}/config/system.xml"
+fi
+if [ -f "${EMBY_DIR}/data/users.db" ]; then
+    USER_COUNT=$(sqlite3 "${EMBY_DIR}/data/users.db" "SELECT count(*) FROM LocalUsersv2;" 2>/dev/null || echo "?")
+    echo "[INFO] ✅ Emby users.db found. User count: ${USER_COUNT}"
+else
+    echo "[WARN] ⚠️  Emby users.db NOT found at ${EMBY_DIR}/data/users.db"
+fi
+
 # Check and restore missing Administrator policy in users.db (Emby 4.9+ fix)
 if [ -f "${EMBY_PROGRAMDATA:-/app/data/emby}/data/users.db" ]; then
     HAS_ADMIN=$(sqlite3 "${EMBY_PROGRAMDATA:-/app/data/emby}/data/users.db" "SELECT count(*) FROM LocalUsersv2 WHERE data LIKE '%\"IsAdministrator\": true%' OR data LIKE '%\"IsAdministrator\":true%';" 2>/dev/null || echo "0")

@@ -341,8 +341,8 @@ environment:
 | `ENABLED_SERVICES` | _(空)_ | 按需启动的服务列表（白名单，逗号分隔），为空则全部启动 |
 | `DISABLED_SERVICES`| _(空)_ | 按需禁用的服务列表（黑名单，逗号分隔），为空则不禁用任何服务 |
 | `ALIST_ADMIN_PASS` | _(空)_ | Alist 管理员密码（每次启动时设置） |
-| `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
-| `EMBY_PROGRAMDATA` | `/config/emby` | Emby 数据目录 |
+| `ALIST_DATA` | `/app/data/alist` | Alist 运行时数据目录（通过 db-sync 与 `/config/alist` 自动双向同步） |
+| `EMBY_PROGRAMDATA` | `/app/data/emby` | Emby 运行时数据目录（通过 db-sync 与 `/config/emby` 自动双向同步） |
 | `EMBY_API_KEY` | _(空)_ | Emby API 密鑰，用于自动触发媒体库扫描 |
 | `METUBE_AUTH_PASS` | _(必填)_ | MeTube Basic Auth 明文密码 |
 | `DEBUG_AUTH_PASS` | _(必填)_ | 诊断面板 Basic Auth 明文密码 |
