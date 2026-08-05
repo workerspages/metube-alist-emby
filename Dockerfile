@@ -89,7 +89,7 @@ RUN case "$TARGETARCH" in \
 # 最新版本
 # "https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases/latest/download/qbittorrent-enhanced-nox_${QBIT_ARCH}-linux-musl_static.zip" \
 # 固定 5.1.3.10 版本
-  "https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases/download/release-5.1.3.10/qbittorrent-enhanced-nox_x86_64-linux-musl_static.zip" \
+  "https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases/download/release-5.1.3.10/qbittorrent-enhanced-nox_${QBIT_ARCH}-linux-musl_static.zip" \
   && unzip -o -q /tmp/qbittorrent-ee.zip -d /usr/local/bin/ \
   && chmod +x /usr/local/bin/qbittorrent-nox \
   && rm -f /tmp/qbittorrent-ee.zip
