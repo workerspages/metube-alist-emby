@@ -290,21 +290,23 @@ environment:
 
 访问 `/debug/` 查看 STRM 同步状态与日志。
 
-### 9. 🎛️ 按需启动特定服务 (ENABLED_SERVICES)
+### 9. 🎛️ 按需启动特定服务 (ENABLED_SERVICES / DISABLED_SERVICES)
 
-如果只需要本项目的某几个功能（例如：作为单纯的下载节点、网盘挂载点，而不启动占用资源的 Emby），可以通过 `ENABLED_SERVICES` 环境变量指定要启动的服务列表（逗号分隔）。
+为了适应不同的部署需求，容器提供了两种反向的控制逻辑：
+- `ENABLED_SERVICES` (白名单)：**只启动**列表中的服务。
+- `DISABLED_SERVICES` (黑名单)：**排除启动**列表中的服务。
 
 **支持的服务名称**（对应核心组件）：
 `caddy`, `emby`, `metube`, `alist`, `alist-mount`, `alist-strm-sync`, `strm-thumb-gen`, `strm-debug`, `qbittorrent`, `metatube-server`, `rclone-webdav`, `emby-scan-watcher`, `db-sync`
 
 **示例**：
-- 仅作为视频下载和网盘代理（不启动 Emby / BT）：
+- 【排除法】只不启动 qBittorrent，其它所有服务照常启动：
+  `DISABLED_SERVICES=qbittorrent`
+- 【白名单法】仅作为视频下载和网盘代理（不启动 Emby / BT）：
   `ENABLED_SERVICES=caddy,alist,metube`
-- 仅作为媒体与 BT 节点：
-  `ENABLED_SERVICES=caddy,qbittorrent,emby,emby-scan-watcher`
 
 > [!TIP]
-> 留空或不配置此变量时，容器将默认启动**所有**内置服务。不在列表中的服务将被禁止自启（状态为 `STOPPED`），但您仍可以通过诊断面板随时手动启动它们。
+> 留空或不配置此变量时，容器将默认启动**所有**内置服务。不在白名单内或身处黑名单内的服务将被禁止自启（状态为 `STOPPED`），但您仍可以通过诊断面板随时手动启动它们。
 
 ## 安全说明
 
@@ -328,7 +330,8 @@ environment:
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `ENABLED_SERVICES` | _(空)_ | 按需启动的服务列表（逗号分隔），为空则全部启动 |
+| `ENABLED_SERVICES` | _(空)_ | 按需启动的服务列表（白名单，逗号分隔），为空则全部启动 |
+| `DISABLED_SERVICES`| _(空)_ | 按需排除的服务列表（黑名单，逗号分隔） |
 | `ALIST_ADMIN_PASS` | _(空)_ | Alist 管理员密码（每次启动时设置） |
 | `ALIST_DATA` | `/config/alist` | Alist 数据目录 |
 | `EMBY_PROGRAMDATA` | `/config/emby` | Emby 数据目录 |
