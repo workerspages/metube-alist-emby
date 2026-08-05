@@ -15,7 +15,6 @@
   <AutoRunWebApp>true</AutoRunWebApp>
   <EnableRemoteAccess>true</EnableRemoteAccess>
   <LogAllQueryTimes>false</LogAllQueryTimes>
-  <DisableOutgoingIPv6>false</DisableOutgoingIPv6>
   <EnableCaseSensitiveItemIds>true</EnableCaseSensitiveItemIds>
   <MetadataNetworkPath />
   <PreferredMetadataLanguage>zh-CN</PreferredMetadataLanguage>
@@ -49,24 +48,20 @@
   <UninstalledPlugins />
   <CollapseVideoFolders>false</CollapseVideoFolders>
   <EnableOriginalTrackTitles>false</EnableOriginalTrackTitles>
-  <VacuumDatabaseOnStartup>true</VacuumDatabaseOnStartup>
+  <VacuumDatabaseOnStartup>false</VacuumDatabaseOnStartup>
   <SimultaneousStreamLimit>0</SimultaneousStreamLimit>
   <DatabaseCacheSizeMB>128</DatabaseCacheSizeMB>
   <EnableSqLiteMmio>false</EnableSqLiteMmio>
-  <PlaylistsUpgradedToM3U>true</PlaylistsUpgradedToM3U>
-  <ImageExtractorUpgraded1>true</ImageExtractorUpgraded1>
+  <PlaylistsUpgradedToM3U>false</PlaylistsUpgradedToM3U>
+  <ImageExtractorUpgraded1>false</ImageExtractorUpgraded1>
   <EnablePeopleLetterSubFolders>true</EnablePeopleLetterSubFolders>
   <OptimizeDatabaseOnShutdown>true</OptimizeDatabaseOnShutdown>
   <DatabaseAnalysisLimit>400</DatabaseAnalysisLimit>
-  <MaxLibraryDatabaseConnections>5</MaxLibraryDatabaseConnections>
-  <MaxAuthDbConnections>5</MaxAuthDbConnections>
-  <MaxOtherDbConnections>3</MaxOtherDbConnections>
   <DisableAsyncIO>false</DisableAsyncIO>
-  <MigratedToUserItemShares8>true</MigratedToUserItemShares8>
-  <MigratedLibraryOptionsToDb>true</MigratedLibraryOptionsToDb>
-  <AllowLegacyLocalNetworkPassword>false</AllowLegacyLocalNetworkPassword>
+  <MigratedToUserItemShares8>false</MigratedToUserItemShares8>
+  <MigratedLibraryOptionsToDb>false</MigratedLibraryOptionsToDb>
+  <AllowLegacyLocalNetworkPassword>true</AllowLegacyLocalNetworkPassword>
   <EnableSavedMetadataForPeople>false</EnableSavedMetadataForPeople>
-  <TvChannelsRefreshed>true</TvChannelsRefreshed>
-  <ProxyHeaderMode>AllAddresses</ProxyHeaderMode>
-  <IsInMaintenanceMode>false</IsInMaintenanceMode>
+  <TvChannelsRefreshed>false</TvChannelsRefreshed>
+  <ProxyHeaderMode>RemoteAddressesOnly</ProxyHeaderMode>
 </ServerConfiguration>
