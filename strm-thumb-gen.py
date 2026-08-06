@@ -73,6 +73,10 @@ def capture_thumbnail(video_url, output_path, seek_seconds):
                 # 生成了空文件，清理掉
                 os.remove(output_path)
                 return False
+        
+        # returncode != 0 时，如果生成了损坏文件也应清理
+        if os.path.exists(output_path):
+            os.remove(output_path)
         return False
     except subprocess.TimeoutExpired:
         logging.warning(f"ffmpeg 超时 ({FFMPEG_TIMEOUT}s): {output_path}")
