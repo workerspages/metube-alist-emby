@@ -124,11 +124,11 @@ if [ -x /app/db-sync.sh ]; then
 fi
 
 # ------------------------------------------
-# Auto-recover corrupted SQLite databases for Emby
+# Auto-recover corrupted SQLite databases for Emby & Alist
 # ------------------------------------------
 if command -v sqlite3 >/dev/null 2>&1; then
-    echo "[INFO] Checking Emby SQLite databases for corruption..."
-    for db in "${EMBY_PROGRAMDATA:-/app/data/emby}/data"/*.db; do
+    echo "[INFO] Checking SQLite databases for corruption..."
+    for db in "${EMBY_PROGRAMDATA:-/app/data/emby}/data"/*.db "${ALIST_DATA:-/app/data/alist}"/*.db; do
         if [ -f "$db" ]; then
             # Use quick_check to avoid extremely long startup times on large libraries
             if ! sqlite3 "$db" "PRAGMA quick_check;" | grep -qi "^ok$"; then
