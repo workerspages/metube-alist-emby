@@ -18,7 +18,10 @@ ALIST_URL = f"http://localhost:5244{ALIST_BASE}"
 ALIST_USER = os.environ.get("ALIST_USER", "admin")
 # 直接复用 ALIST_ADMIN_PASS，无需额外设置 ALIST_PASS
 ALIST_PASS = os.environ.get("ALIST_ADMIN_PASS", "")
+# Caddy 内部代理注入的 Basic Auth 串（容器内存，不落盘）
+ALIST_AUTH_B64 = os.environ.get("ALIST_AUTH_B64", "")
 MOUNT_POINT = "/media/alist"
+CADDY_PORT = 8080
 
 # 视频格式后缀
 VIDEO_EXTS = {".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".ts", ".m2ts", ".iso", ".rmvb"}
@@ -58,6 +61,49 @@ def list_dir(path, token):
         logging.error(f"List dir {path} failed: {e}")
     return None
 
+def build_strm_url(item_path):
+    """构建 .strm 文件内容
+
+    安全设计（修复密码泄露 BUG）：
+    - 优先通过 Caddy 内部代理 /alist-dav-serve 播放，
+      Basic Auth 由 Caddy 从容器环境变量注入（凭据不写入文件）
+    - ALIST_AUTH_B64 未设置时回退到无凭据匿名直连（不包含任何认证信息）
+    """
+    quoted_path = urllib.parse.quote(item_path)
+    if ALIST_AUTH_B64:
+        # 通过 Caddy 注入认证，.strm 文件内不包含用户/密码
+        return f"http://127.0.0.1:{CADDY_PORT}/alist-dav-serve{alist_dav_path(quoted_path)}"
+    else:
+        # 匿名访问（无凭据）
+        return f"http://127.0.0.1:5244{alist_dav_path(quoted_path)}"
+
+def alist_dav_path(quoted_path):
+    """Alist WebDAV 路径拼接（兼容 /alist 前缀）"""
+    return f"{ALIST_BASE}/dav{quoted_path}"
+
+def write_strm_if_changed(strm_filepath, expected_url):
+    """仅在文件不存在或内容不一致时写入，避免同名覆盖和密码变更后不更新"""
+    existing = None
+    if os.path.exists(strm_filepath):
+        try:
+            with open(strm_filepath, "r", encoding="utf-8") as f:
+                existing = f.read().strip()
+        except Exception:
+            existing = None
+
+    if existing != expected_url:
+        try:
+            with open(strm_filepath, "w", encoding="utf-8") as f:
+                f.write(expected_url)
+            if existing is None:
+                logging.info(f"Created STRM: {strm_filepath}")
+            else:
+                logging.info(f"Updated STRM (内容已变化): {strm_filepath}")
+            return True
+        except Exception as e:
+            logging.error(f"Failed to write {strm_filepath}: {e}")
+    return False
+
 def sync():
     # 检查 Alist 是否已启动
     try:
@@ -86,22 +132,14 @@ def sync():
             else:
                 ext = os.path.splitext(name)[1].lower()
                 if ext in VIDEO_EXTS:
-                    # 使用 WebDAV 路径，携带 basic auth 供 Emby 直接读取并重定向播放
-                    auth_part = f"{urllib.parse.quote(ALIST_USER)}:{urllib.parse.quote(ALIST_PASS)}@" if ALIST_PASS else ""
-                    quoted_path = urllib.parse.quote(item_path)
-                    strm_url = f"http://{auth_part}127.0.0.1:5244{ALIST_BASE}/dav{quoted_path}"
-
-                    strm_filename = os.path.splitext(name)[0] + ".strm"
+                    # 带完整文件名生成 .strm（如 movie.mkv.strm），
+                    # 避免同名不同扩展名的视频互相覆盖（修复 BUG）
+                    strm_filename = name + ".strm"
                     strm_filepath = os.path.join(local_dir, strm_filename)
                     valid_strm_files.add(strm_filepath)
 
-                    if not os.path.exists(strm_filepath):
-                        try:
-                            with open(strm_filepath, "w", encoding="utf-8") as f:
-                                f.write(strm_url)
-                            logging.info(f"Created STRM: {strm_filepath}")
-                        except Exception as e:
-                            logging.error(f"Failed to create {strm_filepath}: {e}")
+                    expected_url = build_strm_url(item_path)
+                    write_strm_if_changed(strm_filepath, expected_url)
 
     logging.info("Starting STRM sync scan...")
     traverse("/")

@@ -180,8 +180,13 @@ def get_thumb_log():
 
 
 def check_emby_plugins():
-    """检查 Emby 插件目录内容"""
-    plugin_dir = "/opt/emby-server/system/plugins"
+    """检查 Emby 插件目录内容
+
+    与 entrypoint.sh 实际安装路径保持一致：
+    entrypoint.sh 将 /opt/emby-plugins/*.dll 复制到 ${EMBY_PROGRAMDATA}/plugins/
+    因此这里检查 EMBY_PROGRAMDATA/plugins，而不是 /opt/emby-server/system/plugins
+    """
+    plugin_dir = os.path.join(os.environ.get("EMBY_PROGRAMDATA", "/app/data/emby"), "plugins")
     result = {"plugin_dir": plugin_dir, "files": [], "dirs": []}
     if not os.path.exists(plugin_dir):
         return {"status": "error", "plugin_dir": plugin_dir, "message": f"目录不存在: {plugin_dir}"}
@@ -446,7 +451,7 @@ function render() {
             let actionHtml = '<div class="svc-actions">';
             if (isRunning) {
                 actionHtml += `<button class="svc-btn stop" onclick="toggleService('${s.name}','stop')" ${isSelf ? 'disabled title="不能停止诊断面板自身"' : ''}>停止</button>`;
-                actionHtml += `<button class="svc-btn restart" onclick="toggleService('${s.name}','restart')">重启</button>`;
+                actionHtml += `<button class="svc-btn restart" onclick="toggleService('${s.name}','restart')" ${isSelf ? 'disabled title="不能重启诊断面板自身"' : ''}>重启</button>`;
             } else {
                 actionHtml += `<button class="svc-btn start" onclick="toggleService('${s.name}','start')">启动</button>`;
             }
@@ -672,8 +677,8 @@ class DebugHandler(BaseHTTPRequestHandler):
                 # 安全校验
                 if service not in self.ALLOWED_SERVICES:
                     resp = {"status": "error", "message": f"未知服务: {service}"}
-                elif action == "stop" and service == "strm-debug":
-                    resp = {"status": "error", "message": "不能停止诊断面板自身"}
+                elif service == "strm-debug" and action in ("stop", "restart"):
+                    resp = {"status": "error", "message": "不能停止或重启诊断面板自身"}
                 else:
                     import subprocess
                     result = subprocess.run(

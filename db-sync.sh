@@ -40,13 +40,14 @@ sync_to_persist() {
                 rsync -a --delete --exclude="*.db" --exclude="*.db-wal" --exclude="*.db-shm" "$RUN_DIR/$dir/" "$PERSIST_DIR/$dir/"
                 
                 # Find all .db files recursively in the run directory and back them up safely
-                find "$RUN_DIR/$dir" -type f -name "*.db" | while read -r db_path; do
+                # 使用 -print0 + read -d '' 处理路径含空格的情况（修复 R2）
+                while IFS= read -r -d '' db_path; do
                     rel_path="${db_path#$RUN_DIR/$dir/}"
                     target_dir="$PERSIST_DIR/$dir/$(dirname "$rel_path")"
                     mkdir -p "$target_dir"
                     # Use sqlite3 .backup for an atomic snapshot
                     sqlite3 "$db_path" ".backup '$target_dir/$(basename "$db_path")'" || echo "[WARN] Failed to backup $db_path"
-                done
+                done < <(find "$RUN_DIR/$dir" -type f -name "*.db" -print0)
                 
                 # Clean up any old WAL/SHM files in the persistent volume to prevent restore conflicts
                 find "$PERSIST_DIR/$dir" -type f \( -name "*.db-wal" -o -name "*.db-shm" \) -delete 2>/dev/null || true

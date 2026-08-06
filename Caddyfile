@@ -82,9 +82,29 @@
     # rclone WebDAV
     # rclone serve 使用 --baseurl /rclone，无需 strip_prefix
     # 显式透传 Authorization 头，确保 Basic Auth 认证生效
-    handle /rclone* {
+    handle /rclone/* {
         reverse_proxy localhost:8085 {
             header_up Authorization {http.request.header.Authorization}
+        }
+    }
+
+    # Alist WebDAV 内部代理（仅用于 .strm 播放）
+    # .strm 文件只包含无凭据的路径，由 Caddy 在转发时注入 Basic Auth
+    # 凭据从环境变量 ALIST_AUTH_B64 读取（内存中），不会落盘泄露
+    # 该路由在 default_site 内按前缀优先匹配（/alist-dav-serve 在 default_site 之后出错时会由 default_site 处理）
+    handle /alist-dav-serve/* {
+        uri strip_prefix /alist-dav-serve
+        reverse_proxy localhost:5244 {
+            header_up Authorization "Basic {env.ALIST_AUTH_B64}"
+            header_up Host localhost:5244
+        }
+    }
+
+    # 兜底：/alist-dav-serve 无子路径时也接收（避免 404）
+    handle /alist-dav-serve {
+        reverse_proxy localhost:5244 {
+            header_up Authorization "Basic {env.ALIST_AUTH_B64}"
+            header_up Host localhost:5244
         }
     }
 }

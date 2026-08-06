@@ -38,6 +38,16 @@ if [ "${RCLONE_WEBDAV_PASS}" = "adminadmin" ] || [ -z "${RCLONE_WEBDAV_PASS}" ];
 fi
 
 # ------------------------------------------
+# 生成 Alist WebDAV 内部代理认证串（Base64）
+# strm-proxy 通过 Caddy 路由 /alist-dav-serve 注入 Basic Auth
+# 凭据只存在于内存，不会写入 .strm 文件，防止密码泄露
+# ------------------------------------------
+if [ -n "${ALIST_ADMIN_PASS}" ]; then
+    export ALIST_AUTH_B64=$(printf '%s:%s' "${ALIST_USER:-admin}" "${ALIST_ADMIN_PASS}" | base64 | tr -d '\n')
+    echo "[INFO] Alist WebDAV 内部代理认证已启用（凭据不落盘）"
+fi
+
+# ------------------------------------------
 # 生成 MeTube 和 诊断面板的 bcrypt 哈希
 # 支持传入明文密码，自动转换，跟WebDAV一致
 # ------------------------------------------
