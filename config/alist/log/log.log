@@ -989,3 +989,27 @@ failed get objs
 [GIN] 2026/05/31 - 13:32:36 | 200 |   28.107155ms |    144.24.86.43 | POST     "/alist/api/auth/login/hash"
 [GIN] 2026/05/31 - 13:32:37 | 200 |  254.174272ms |    144.24.86.43 | GET      "/alist/api/me"
 [GIN] 2026/05/31 - 13:32:37 | 200 |    4.361236ms |    144.24.86.43 | GET      "/alist/api/me/sshkey/list"
+[33mWARN[0m[2026-08-24 11:30:18] not enable search                            
+[36mINFO[0m[2026-08-24 11:30:18] closing db                                   
+[33mWARN[0m[2026-08-24 11:30:22] not enable search                            
+[GIN] 2026/08/24 - 11:30:24 | 200 |     1.22739ms |             ::1 | GET      "/alist/api/public/settings"
+[31mERRO[0m[2026-08-24 11:30:25] failed list /: storage not found; please add a storage first
+failed get storage 
+[GIN] 2026/08/24 - 11:30:25 | 404 |    2.277639ms |             ::1 | PROPFIND  "/alist/dav/"
+[36mINFO[0m[2026-08-24 11:35:19] closing db                                   
+[33mWARN[0m[2026-08-24 11:35:19] not enable search                            
+[33mWARN[0m[2026-08-24 11:35:42] not enable search                            
+[33mWARN[0m[2026-08-24 11:35:44] not enable search                            
+[33mWARN[0m[2026-08-24 11:35:45] not enable search                            
+[33mWARN[0m[2026-08-24 11:35:47] not enable search                            
+[33mWARN[0m[2026-08-24 11:35:51] not enable search                            
+[33mWARN[0m[2026-08-24 11:36:49] not enable search                            
+[36mINFO[0m[2026-08-24 11:36:49] closing db                                   
+[33mWARN[0m[2026-08-24 11:36:51] not enable search                            
+[GIN] 2026/08/24 - 11:36:56 | 200 |     571.712µs |             ::1 | GET      "/alist/api/public/settings"
+[33mWARN[0m[2026-08-24 13:37:29] not enable search                            
+[33mWARN[0m[2026-08-24 13:37:31] not enable search                            
+[33mWARN[0m[2026-08-24 13:37:32] not enable search                            
+[33mWARN[0m[2026-08-24 13:37:34] not enable search                            
+[33mWARN[0m[2026-08-24 13:37:37] not enable search                            
+[33mWARN[0m[2026-08-24 13:37:40] not enable search                            

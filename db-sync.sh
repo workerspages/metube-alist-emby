@@ -46,6 +46,10 @@ sync_to_persist() {
                     rel_path="${db_path#$RUN_DIR/$dir/}"
                     target_dir="$PERSIST_DIR/$dir/$(dirname "$rel_path")"
                     mkdir -p "$target_dir"
+                    # Create a backup of the previous snapshot to protect against WebDAV upload truncation
+                    if [ -f "$target_dir/$(basename "$db_path")" ]; then
+                        cp -f "$target_dir/$(basename "$db_path")" "$target_dir/$(basename "$db_path").bak"
+                    fi
                     # Use sqlite3 .backup for an atomic snapshot
                     sqlite3 "$db_path" ".backup '$target_dir/$(basename "$db_path")'" || echo "[WARN] Failed to backup $db_path"
                 done < <(find "$RUN_DIR/$dir" -type f -name "*.db" -print0)

@@ -141,10 +141,27 @@ if command -v sqlite3 >/dev/null 2>&1; then
             
             CHECK_RESULT=$(sqlite3 "$db" "$CHECK_CMD" 2>&1 | tr -d '\r\n')
             if [ "$CHECK_RESULT" != "ok" ]; then
-                echo "[WARN] ⚠️  Corruption detected in $db! Force clearing it to allow a fresh start."
-                mv "$db" "$db.corrupted.bak"
-                rm -f "${db}-wal" "${db}-shm"
-                echo "[INFO] ✅  Corrupted database moved to .corrupted.bak"
+                echo "[WARN] ⚠️  Corruption detected in $db! Attempting recovery..."
+                
+                # Try to restore from the previous 5-minute .bak snapshot first (safest method against WebDAV truncation)
+                if [ -f "$db.bak" ] && sqlite3 "$db.bak" "PRAGMA quick_check;" | grep -qi "^ok$"; then
+                    echo "[INFO] 🔄  Found healthy $db.bak! Restoring from backup..."
+                    mv "$db" "$db.corrupted.bak"
+                    cp "$db.bak" "$db"
+                    echo "[INFO] ✅  Successfully recovered $db from $db.bak."
+                else
+                    # Fallback to .dump if .bak is missing or also corrupted
+                    echo "[WARN] ⚠️  No healthy .bak found for $db. Attempting .dump extraction..."
+                    if sqlite3 "$db" ".dump" | sqlite3 "$db.recovered"; then
+                        mv "$db" "$db.corrupted.bak"
+                        mv "$db.recovered" "$db"
+                        echo "[INFO] ✅  Successfully recovered $db via SQL dump."
+                    else
+                        echo "[ERROR] ❌  Failed to recover $db. Renaming to .corrupted.bak to allow fresh start."
+                        rm -f "$db.recovered"
+                        mv "$db" "$db.corrupted.bak"
+                    fi
+                fi
             else
                 echo "[INFO] ✅  $db is healthy."
             fi
