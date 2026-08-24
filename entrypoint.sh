@@ -269,7 +269,19 @@ fi
 # Set admin password via environment variable (for PaaS without terminal)
 if [ -n "${ALIST_ADMIN_PASS}" ]; then
     echo "Setting Alist admin password from environment variable..."
-    /usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" || echo "[WARN] Failed to set Alist admin password."
+    ALIST_SET_RESULT=$(/usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" 2>&1)
+    if [ $? -ne 0 ]; then
+        echo "[WARN] Failed to set Alist admin password. Output: $ALIST_SET_RESULT"
+        if echo "$ALIST_SET_RESULT" | grep -qi "malformed\|corruption\|error"; then
+            echo "[ERROR] ❌ Alist database is corrupted or malformed according to Alist engine itself! Force clearing..."
+            mv "$ALIST_DATA/data.db" "$ALIST_DATA/data.db.corrupted.bak" 2>/dev/null || true
+            rm -f "$ALIST_DATA/"*.db-wal "$ALIST_DATA/"*.db-shm 2>/dev/null || true
+            echo "[INFO] Corrupted database cleared. Retrying to set admin password on a fresh database..."
+            /usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" || true
+        fi
+    else
+        echo "[INFO] Alist admin password set successfully."
+    fi
 fi
 
 # Set Alist site_url for subpath routing
