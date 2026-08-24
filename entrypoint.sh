@@ -141,19 +141,12 @@ if command -v sqlite3 >/dev/null 2>&1; then
             
             CHECK_RESULT=$(sqlite3 "$db" "$CHECK_CMD" 2>&1 | tr -d '\r\n')
             if [ "$CHECK_RESULT" != "ok" ]; then
-                echo "[WARN] ⚠️  Corruption detected in $db! Attempting recovery..."
-                # .dump extracts SQL and we pipe it to a new db
-                if sqlite3 "$db" ".dump" | sqlite3 "$db.recovered" 2>/dev/null; then
-                    mv "$db" "$db.corrupted.bak"
-                    mv "$db.recovered" "$db"
-                    rm -f "${db}-wal" "${db}-shm"
-                    echo "[INFO] ✅  Successfully recovered $db."
-                else
-                    echo "[ERROR] ❌  Failed to recover $db. Renaming to .corrupted.bak to allow fresh start."
-                    rm -f "$db.recovered"
-                    mv "$db" "$db.corrupted.bak"
-                    rm -f "${db}-wal" "${db}-shm"
-                fi
+                echo "[WARN] ⚠️  Corruption detected in $db! Force clearing it to allow a fresh start."
+                mv "$db" "$db.corrupted.bak"
+                rm -f "${db}-wal" "${db}-shm"
+                echo "[INFO] ✅  Corrupted database moved to .corrupted.bak"
+            else
+                echo "[INFO] ✅  $db is healthy."
             fi
         fi
     done
@@ -266,22 +259,22 @@ if [ ! -f "$ALIST_CONFIG" ]; then
     cd "$ALIST_DATA" && /usr/local/bin/alist admin random --data "$ALIST_DATA" 2>/dev/null || true
 fi
 
+# ------------------------------------------
+# FAIL-SAFE: Manual Alist Database Reset
+# ------------------------------------------
+# If the database is half-corrupt (passes SQLite checks but crashes Alist),
+# the user can set RESET_ALIST_DB=true in the cloud environment to force a clean slate.
+if [ "$RESET_ALIST_DB" = "true" ]; then
+    echo "[WARN] 🧨 RESET_ALIST_DB is true! Purging Alist database to guarantee a fresh start..."
+    mv "$ALIST_DATA/data.db" "$ALIST_DATA/data.db.force-purged.bak" 2>/dev/null || true
+    rm -f "$ALIST_DATA/"*.db-wal "$ALIST_DATA/"*.db-shm 2>/dev/null || true
+    echo "[INFO] ✅ Alist database purged. Please remember to REMOVE this environment variable later."
+fi
+
 # Set admin password via environment variable (for PaaS without terminal)
 if [ -n "${ALIST_ADMIN_PASS}" ]; then
     echo "Setting Alist admin password from environment variable..."
-    ALIST_SET_RESULT=$(/usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" 2>&1)
-    if [ $? -ne 0 ]; then
-        echo "[WARN] Failed to set Alist admin password. Output: $ALIST_SET_RESULT"
-        if echo "$ALIST_SET_RESULT" | grep -qi "malformed\|corruption\|error"; then
-            echo "[ERROR] ❌ Alist database is corrupted or malformed according to Alist engine itself! Force clearing..."
-            mv "$ALIST_DATA/data.db" "$ALIST_DATA/data.db.corrupted.bak" 2>/dev/null || true
-            rm -f "$ALIST_DATA/"*.db-wal "$ALIST_DATA/"*.db-shm 2>/dev/null || true
-            echo "[INFO] Corrupted database cleared. Retrying to set admin password on a fresh database..."
-            /usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" || true
-        fi
-    else
-        echo "[INFO] Alist admin password set successfully."
-    fi
+    /usr/local/bin/alist admin set "${ALIST_ADMIN_PASS}" --data "$ALIST_DATA" || echo "[WARN] Failed to set Alist admin password."
 fi
 
 # Set Alist site_url for subpath routing
