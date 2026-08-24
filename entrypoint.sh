@@ -137,11 +137,13 @@ if command -v sqlite3 >/dev/null 2>&1; then
                 if sqlite3 "$db" ".dump" | sqlite3 "$db.recovered"; then
                     mv "$db" "$db.corrupted.bak"
                     mv "$db.recovered" "$db"
+                    rm -f "${db}-wal" "${db}-shm"
                     echo "[INFO] ✅  Successfully recovered $db."
                 else
                     echo "[ERROR] ❌  Failed to recover $db. Renaming to .corrupted.bak to allow fresh start."
                     rm -f "$db.recovered"
                     mv "$db" "$db.corrupted.bak"
+                    rm -f "${db}-wal" "${db}-shm"
                 fi
             fi
         fi
