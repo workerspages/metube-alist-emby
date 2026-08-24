@@ -133,13 +133,17 @@ if command -v sqlite3 >/dev/null 2>&1; then
             # Use integrity_check for Alist to detect index corruptions,
             # but quick_check for large Emby databases to avoid extremely long startup times.
             CHECK_CMD="PRAGMA quick_check;"
-            if [[ "$db" == *"alist"* ]]; then
-                CHECK_CMD="PRAGMA integrity_check;"
-            fi
-            if ! sqlite3 "$db" "$CHECK_CMD" | grep -qi "^ok$"; then
+            case "$db" in
+                *alist*)
+                    CHECK_CMD="PRAGMA integrity_check;"
+                    ;;
+            esac
+            
+            CHECK_RESULT=$(sqlite3 "$db" "$CHECK_CMD" 2>&1 | tr -d '\r\n')
+            if [ "$CHECK_RESULT" != "ok" ]; then
                 echo "[WARN] ⚠️  Corruption detected in $db! Attempting recovery..."
                 # .dump extracts SQL and we pipe it to a new db
-                if sqlite3 "$db" ".dump" | sqlite3 "$db.recovered"; then
+                if sqlite3 "$db" ".dump" | sqlite3 "$db.recovered" 2>/dev/null; then
                     mv "$db" "$db.corrupted.bak"
                     mv "$db.recovered" "$db"
                     rm -f "${db}-wal" "${db}-shm"
