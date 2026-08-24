@@ -356,7 +356,7 @@ environment:
 | `WEBDAV_BACKUP_USER` | _(空)_ | 用于远程备份的 WebDAV 用户名 |
 | `WEBDAV_BACKUP_PASS` | _(空)_ | 用于远程备份的 WebDAV 密码 |
 | `WEBDAV_SYNC_INTERVAL`| `300` | WebDAV 远程备份间隔（秒） |
-| `RESET_ALIST_DB` | _(空)_ | **物理核弹开关**：设为 `true` 并在重启容器时强制清空并重建损坏的 Alist 数据库（修复无尽崩溃）。修复后请务必移除此变量。 |
+| `RESET_ALIST_DB` | _(空)_ | **物理核弹开关**：设为 `true` 并在重启容器时强制清空并重建损坏的 Alist 数据库（修复无尽崩溃）。修复后请务必移除此变量或设为 ` false`。 |
 
 ### MeTube 官方变量（可直接使用）
 
