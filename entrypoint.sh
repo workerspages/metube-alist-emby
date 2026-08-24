@@ -130,8 +130,13 @@ if command -v sqlite3 >/dev/null 2>&1; then
     echo "[INFO] Checking SQLite databases for corruption..."
     for db in "${EMBY_PROGRAMDATA:-/app/data/emby}/data"/*.db "${ALIST_DATA:-/app/data/alist}"/*.db; do
         if [ -f "$db" ]; then
-            # Use quick_check to avoid extremely long startup times on large libraries
-            if ! sqlite3 "$db" "PRAGMA quick_check;" | grep -qi "^ok$"; then
+            # Use integrity_check for Alist to detect index corruptions,
+            # but quick_check for large Emby databases to avoid extremely long startup times.
+            CHECK_CMD="PRAGMA quick_check;"
+            if [[ "$db" == *"alist"* ]]; then
+                CHECK_CMD="PRAGMA integrity_check;"
+            fi
+            if ! sqlite3 "$db" "$CHECK_CMD" | grep -qi "^ok$"; then
                 echo "[WARN] ⚠️  Corruption detected in $db! Attempting recovery..."
                 # .dump extracts SQL and we pipe it to a new db
                 if sqlite3 "$db" ".dump" | sqlite3 "$db.recovered"; then

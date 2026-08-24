@@ -17,6 +17,7 @@ sync_to_run() {
                 # Always clean up leftover WAL files in the persistent directory before restoring
                 # This prevents previous dirty shutdowns or leftover WALs from corrupting the fresh start
                 find "$PERSIST_DIR/$dir" -type f \( -name "*.db-wal" -o -name "*.db-shm" \) -delete 2>/dev/null || true
+                find "$RUN_DIR/$dir" -type f \( -name "*.db-wal" -o -name "*.db-shm" \) -delete 2>/dev/null || true
                 rsync -a --delete --exclude="*.db-wal" --exclude="*.db-shm" "$PERSIST_DIR/$dir/" "$RUN_DIR/$dir/"
             else
                 rsync -a --delete "$PERSIST_DIR/$dir/" "$RUN_DIR/$dir/"
